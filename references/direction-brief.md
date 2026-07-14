@@ -201,46 +201,108 @@ Rewrite the set if any condition is true:
 
 Do not “fix” a failed set by inventing more adjectives. Rewrite the single job, thesis, signature, layout grammar, or design logic until the versions are structurally different.
 
-## Ready-to-Use Template
+## Ready-to-Use `DESIGN_BRIEF.md` Template
 
-```markdown
-## Style <A/B/C>: <direction name>
+Use this as the complete file structure for every candidate. Sections may be expanded for the actual product, but none may be omitted. Keep the three anti-slop record lines immediately below the title. Record the approved whole-file SHA-256 outside the file so writing the digest cannot change the bytes it authenticates.
+
+````markdown
+# DESIGN_BRIEF.md — Style <A/B/C>: <direction name>
 
 [AESTHETIC] <one- or two-sentence thesis with product evidence>
 [SIGNATURE] <one memorable content-bearing element and where it appears>
 [ANTI-DEFAULT] <specific default rejected, harm, and replacement>
 
-### 1. Subject / Audience / Single Job
+## Approval And Integrity Metadata
+- Style: <A/B/C>
+- Approval status: <pending until the user confirms this exact complete file>
+- Approval record: <date, turn, or durable external record>
+- Hash algorithm: SHA-256 over the exact UTF-8 file bytes
+- Approved whole-file SHA-256: <stored in the external Arena registry and Candidate Record; do not write the digest value back into this file>
+- Reference snapshot ID: <frozen Arena snapshot ID>
+- Absolute SKILL_ROOT: <absolute path recorded by the main agent>
+- Skill provenance: <Skill commit, NO-GIT/HASHED, or DIRTY-GIT/HASHED>
+
+## Product Snapshot
+- Product and subject:
+- Content or data shape:
+- Audience:
+- Priority routes and screens:
+- Primary user flows:
+- Brand and content constraints:
+
+## Technical Snapshot
+- Framework and runtime:
+- Package manager:
+- Install command:
+- Development and preview commands:
+- Build, test, lint, and typecheck commands:
+- Required environment variables and local services:
+- Setup, code generation, or build-before-dev steps:
+- Existing functionality that must be preserved:
+
+## 1. Subject / Audience / Single Job
 - Subject:
 - Audience:
 - Single job:
 
-### 2. Aesthetic Thesis
+## 2. Aesthetic Thesis
 <thesis, evidence, and system consequence>
 
-### 3. Signature Element
+## 3. Signature Element
 <information/action, location, repetition rule, implementation evidence>
 
-### 4. One Justified Risk
+## 4. One Justified Risk
 - Benefit:
 - Failure mode:
 - Boundary or mitigation:
 
-### 5. Anti-Default Declaration
-<specific rejection and replacement>
+## 5. Anti-Default Declaration
+<specific rejection, product harm, and structural or behavioral replacement>
 
-### 6. ASCII Wireframe
+## 6. ASCII Wireframe
 <first screen and continuation state, including narrow-screen note>
 
-### 7. Observable Differences
+## 7. Observable Differences
 - Versus Style <X>:
 - Versus Style <Y>:
 - Difference axes used:
 
-### Token Summary
-<color, type, layout, spacing, radius, motion>
+## Token Summary
+```yaml
+color:
+  canvas: <role and value>
+  surface: <role and value>
+  text: <role and value>
+  muted: <role and value>
+  accent: <role and value>
+  status: <success/warning/error/stale roles and values>
+type:
+  display: <family, weight, size, line-height, role>
+  body: <family, weight, size, line-height, role>
+  data: <family, weight, size, line-height, role>
+layout:
+  shell: <max width, columns, rails, or reading measure>
+  narrow: <responsive transformation>
+spacing: <base unit and named rhythm>
+radius: <named values and where each is allowed>
+motion: <duration/easing by state, deliberately static states, reduced-motion behavior>
+```
 
-### Replaceability Test
+## Replaceability Test
 - Identity without label:
 - Resistance to generic transplant:
-```
+
+## Domain Calibration
+- Domain pack ID: <pack ID, or `none`>
+- Domain source ID: <stable source identifier without a builder-facing source path, or `none`>
+- Domain source snapshot SHA-256: <hash from the frozen Arena manifest, or `none`>
+
+### Adaptation And Precedence
+- Normative contract: The user-approved seven elements, token summary, product constraints, and technical constraints above govern implementation.
+- Calibration material: The complete domain source block below informs domain fidelity but does not override the normative contract.
+- Conflict resolution: Resolve every known adaptation conflict before user approval and record the resolution here.
+- Builder rule: If a conflict remains or appears later, stop and report it to the main agent. The builder must not reinterpret, rewrite, or choose between the two.
+
+### Domain Direction Source — Complete Verbatim Copy
+<Paste the entire matched direction source byte-for-byte and line-for-line. If no domain pack matched, write exactly: `Not applicable — no domain pack matched.`>
+````

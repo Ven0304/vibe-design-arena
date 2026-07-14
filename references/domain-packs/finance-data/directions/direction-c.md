@@ -2,7 +2,7 @@
 
 > **Purpose:** Supplies one domain-calibrated starting direction without exposing either sibling direction.
 >
-> **Readers:** The main agent and only the builder assigned to Direction C.
+> **Readers:** The main agent only at this source path. The assigned builder receives this complete original text only through the worktree's root-level `DESIGN_BRIEF.md`.
 
 **Reference logic:** Stripe + Linear for operations, with Every for bounded authorial voice.
 

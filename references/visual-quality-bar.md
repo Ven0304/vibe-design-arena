@@ -2,6 +2,8 @@
 
 Use this file after implementation. Treat every applicable item as binary: pass only when the rendered interface provides visible evidence. Intent, source code, or a token name alone does not count.
 
+A builder's use of this file is a preliminary self-check. The main agent owns the final rendered evidence in Stage 4.5 and must place the supporting captures or test results in that candidate's evidence bundle. Without that evidence, mark the item `FAIL`.
+
 ## Typography Hierarchy
 
 - [ ] Use a deliberate type scale with approximately four to six recurring size levels. Add another level only when it has a distinct semantic role; near-duplicate sizes fail.

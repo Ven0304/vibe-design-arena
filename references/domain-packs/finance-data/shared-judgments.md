@@ -104,4 +104,4 @@ Reject a brief that equates dashboard with card grid, editorial with one column 
 
 Reject a brief whose motion plan says only “subtle animations.” It must name which state changes move, which remain immediate, and which remain deliberately static.
 
-These are evidence-based starting points, not mandatory final directions. Adapt them to the actual product schema, routes, audience, and brand. Do not blend all three into one “best of” brief.
+These are evidence-based shared calibration rules, not standalone direction proposals. Apply them to the actual product schema, routes, audience, and brand. Keep the three separately assigned direction logics distinct; do not blend them into one “best of” brief.

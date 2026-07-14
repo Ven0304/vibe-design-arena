@@ -2,6 +2,8 @@
 
 Use this file after implementation. Every motion or transition must have a product purpose and must remain understandable when motion is reduced.
 
+A builder's result is preliminary unless it includes evidence from the actual rendered version. The main agent owns the final Stage 4.5 interaction evidence, including keyboard, focus return, rapid toggling, touch-sized viewport behavior, and reduced motion. Source inspection alone cannot pass an interaction item.
+
 ## Allowed Purposes
 
 Motion may be used only to provide one or more of these outcomes:

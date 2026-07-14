@@ -1,11 +1,11 @@
 ---
 name: vibe-design-arena
-description: Use when a user has an existing product codebase and wants to explore three independent frontend redesign directions in parallel, using git worktree branches plus sub-agents or dispatch, then preview the three complete alternatives, choose one, merge the selected branch back into the main line, and clean up the unselected worktrees. The workflow is for whole-style selection only, not mix-and-match composition, cherry-picking, or product-specific templates.
+description: Use when a user has an existing product codebase and wants to explore three independent frontend redesign directions in parallel, using git worktree branches plus sub-agents or dispatch, then preview the three complete alternatives, choose one, merge the selected branch back into the main line, clean up the linked worktrees, and retain every unselected branch. The workflow is for whole-style selection only, not mix-and-match composition, cherry-picking, or product-specific templates.
 ---
 
 # Vibe Design Arena
 
-Run a three-way frontend style exploration for an existing product repository. Build three complete, internally coherent alternatives from the same Git starting point, preview them side by side, let the user choose one, merge the chosen branch back, and clean up the rest.
+Run a three-way frontend style exploration for an existing product repository. Build three complete, internally coherent alternatives from the same Git starting point, preview them side by side, let the user choose one, merge the chosen branch back, remove the linked worktrees, and retain the unselected branches for later inspection.
 
 Do not support mixing elements across alternatives. The user chooses one complete branch.
 
@@ -13,14 +13,63 @@ Do not support mixing elements across alternatives. The user chooses one complet
 
 - Treat all product details as runtime inputs: repo path, target product, audience, routes, brand constraints, references, install commands, test commands, preview commands, required environment variables, local services, and setup steps that must run before dev or build commands.
 - Do not hard-code a framework, product type, UI style, or code example.
-- Do not start worktree creation until the user confirms the three proposed style directions.
+- Do not start worktree creation until the user has seen and confirmed the complete contents of all three `DESIGN_BRIEF.md` files.
 - Do not cherry-pick selected elements. If the user asks to mix alternatives, explain that this skill handles whole-branch selection only and ask them to choose one direction or start a separate redesign task.
 - Preserve unrelated user changes. Never reset, delete, or overwrite ambiguous work without explicit confirmation.
 - Keep the three alternatives isolated in separate linked worktrees and branches.
+- Retain every unselected style branch after the arena. Cleanup removes linked worktrees, not the losing branches.
 
 ## Stage 1: Inspect The Product And Propose Directions
 
 Start in the product repository, or ask for the repo path if it is unclear.
+
+### Freeze The Skill And Reference Snapshot
+
+Resolve and record the absolute `SKILL_ROOT` that contains the loaded `SKILL.md`. Do not derive reference paths from the product repository or a style worktree.
+
+Bash example:
+
+```bash
+SKILL_ROOT="$(cd "<directory-containing-the-loaded-SKILL.md>" && pwd -P)"
+```
+
+PowerShell example:
+
+```powershell
+$skillRoot = (Resolve-Path '<directory-containing-the-loaded-SKILL.md>').Path
+```
+
+Record Skill provenance before reading references. If `SKILL_ROOT` is inside Git, record the Git top level, current commit, and whether `SKILL.md` or `references/` differs from that commit:
+
+```bash
+git -C "$SKILL_ROOT" rev-parse --show-toplevel
+git -C "$SKILL_ROOT" rev-parse HEAD
+git -C "$SKILL_ROOT" status --short -- SKILL.md references
+```
+
+PowerShell equivalent:
+
+```powershell
+git -C $skillRoot rev-parse --show-toplevel
+git -C $skillRoot rev-parse HEAD
+git -C $skillRoot status --short -- SKILL.md references
+```
+
+Record the commit as provenance only when available. If Git is unavailable, or if any consumed file is untracked or differs from that commit, label the provenance `NO-GIT/HASHED` or `DIRTY-GIT/HASHED`. In every mode, SHA-256 hashes are the authoritative content lock.
+
+Create one Arena-level reference snapshot manifest before drafting. Include:
+
+```text
+Reference snapshot ID:
+Absolute SKILL_ROOT:
+Skill Git root or NO-GIT:
+Skill commit or HASHED provenance:
+absolute file path | SHA-256
+```
+
+Hash `SKILL.md` and the core references: `direction-brief.md`, `anti-slop.md`, `visual-quality-bar.md`, `interaction-quality-bar.md`, and `arena-scorecard.md`. After the product domain is known and before reading a matching domain pack, extend the same manifest with `domain-packs/README.md` and every consumed file in that pack: `shared-judgments.md`, all three direction sources, and `orthogonality-check.md`. Then freeze the manifest and assign its final snapshot ID.
+
+All reference names in this workflow must resolve against the recorded absolute `SKILL_ROOT`, never against the product worktree. Before every later main-agent or builder read, recompute the file's SHA-256 and compare it with the frozen manifest. If any path or hash differs, stop the Arena. Restore access to the frozen bytes, or ask the user whether to restart the entire Arena with a new snapshot or cancel; never update the manifest in place.
 
 Preflight the Git repository boundary before running the full Git state check. This step first decides whether the current directory is already inside a Git repository:
 
@@ -219,7 +268,7 @@ Inspect the product:
 
 This is the highest-weight and highest-leverage stage in the entire workflow. Do not treat direction drafting as one checklist item among many. If the three briefs are not genuinely distinct before worktree creation, stronger execution in Stage 3 will only produce three polished versions of the same weak design proposition; it cannot recover the missing strategic separation.
 
-Before drafting any direction, the main agent must read the complete original text of:
+Before drafting any direction, the main agent must verify the frozen hash and then read the complete original text at the absolute snapshot-manifest path for:
 
 - [`references/direction-brief.md`](references/direction-brief.md), which defines the seven required brief elements, the token summary format, and the conditions that make all three briefs unqualified and require a rewrite.
 - When the product matches a domain pack, the main agent must read the complete original text of every content file in that domain pack folder before drafting any brief:
@@ -231,52 +280,57 @@ Before drafting any direction, the main agent must read the complete original te
 
 Do not create worktrees or dispatch builders until this reading and brief-writing gate is complete. The main agent owns the one-time arena-level judgment that the three directions are sufficiently orthogonal.
 
-Prepare a concise "Arena Brief" for user confirmation:
+Draft each direction with all seven elements and the token summary required by `direction-brief.md`, calibrated by the matching domain pack and differentiated through the design-logic rotation in `anti-slop.md`. Apply the rewrite criteria to the three briefs as a set and rewrite any failed set before presentation.
+
+Then prepare a concise shared "Arena Preface" to place immediately before the three full `DESIGN_BRIEF.md` files in Stage 1.5:
 
 - Product snapshot: what the product does, who uses it, and which screens matter most.
 - Technical snapshot: framework, install command, dev command, build/test commands, likely preview ports, required environment variables, local services or mock backends, and any setup, codegen, or build-before-dev steps.
-- Three style directions: Style A, Style B, Style C.
-- Draft each direction with all seven elements and the token summary required by `references/direction-brief.md`, calibrated by the matching domain pack and differentiated through the design-logic rotation in `references/anti-slop.md`.
-- Apply the rewrite criteria in `references/direction-brief.md` to the three briefs as a set. If they fail, rewrite them before asking for user confirmation.
+- Reference snapshot ID, absolute `SKILL_ROOT`, and Skill commit or hashed provenance.
+- Style index: the name and one-sentence distinction for Style A, Style B, and Style C.
+
+The Arena Preface is shared context, not a separate approval artifact. Do not ask the user to confirm it. The only design-confirmation point occurs after the user has seen the preface and the complete contents of all three files.
 
 ## Stage 1.5: Generate And Show Three `DESIGN_BRIEF.md` Drafts
 
-Before asking the user to confirm the directions, the main agent must generate three complete Markdown artifacts, each named `DESIGN_BRIEF.md` and labeled clearly in the presentation as Style A, Style B, or Style C. At this stage they may be held by the main agent as drafts, but they are the exact candidate files that will be materialized in the three worktrees after approval.
+Before the single design-confirmation point, the main agent must generate three complete Markdown artifacts, each named `DESIGN_BRIEF.md` and labeled clearly in the presentation as Style A, Style B, or Style C. At this stage they may be held by the main agent as drafts, but they are the exact candidate files that will be materialized in the three worktrees after approval.
 
-Every `DESIGN_BRIEF.md` must contain:
+Build every file from the complete ready-to-use template in the frozen `direction-brief.md`. Every `DESIGN_BRIEF.md` must contain:
 
-- The completed seven required brief elements from `references/direction-brief.md` for that style.
-- The required token summary and replaceability test so the artifact is implementation-ready rather than only a concept note.
-- The product and technical constraints that the assigned builder must preserve.
-- When a domain pack matches, a dedicated `Domain Direction Source — Complete Verbatim Copy` section containing the entire original text of that style's matching source file under `directions/`.
+- the three-line `[AESTHETIC]`, `[SIGNATURE]`, and `[ANTI-DEFAULT]` record from `anti-slop.md` at the top;
+- approval and integrity metadata, including the reference snapshot ID and the rule that the final whole-file SHA-256 is stored externally;
+- the complete product snapshot and technical snapshot;
+- the completed seven required brief elements;
+- the required token summary and two-sided replaceability test;
+- the domain pack ID and domain source ID, or explicit `none` values when no domain pack matches;
+- an adaptation and precedence section that makes the user-approved seven elements normative and the domain source calibration material; and
+- when a domain pack matches, a `Domain Direction Source — Complete Verbatim Copy` section containing the entire original text of that style's matching source file under `directions/`.
 
 For the domain direction source, copy the whole file exactly. Preserve every heading, paragraph, list item, warning, and boundary note in its original order. Do not excerpt selected sentences, summarize it, paraphrase it, compress it, or replace it with a link. The copied block must be complete enough to compare line-for-line with the source file. Style A receives only the complete A source, Style B only the complete B source, and Style C only the complete C source.
 
-If no domain pack matches, all three `DESIGN_BRIEF.md` files must still exist and contain at least the completed seven brief elements, token summary, replaceability test, and product constraints.
+If no domain pack matches, all three `DESIGN_BRIEF.md` files must still use the full template. Set the domain pack and source IDs to `none` and mark the verbatim source section `Not applicable — no domain pack matched`; do not omit the section structure.
 
 Use the shared judgments while drafting and use the main-agent-only comparison file to test the three drafts as a set. If the three files fail the orthogonality or rewrite criteria, revise them before presentation.
 
-Present the full contents of all three `DESIGN_BRIEF.md` drafts to the user before asking for confirmation. A summary, abbreviated preview, diff, or table is not a substitute for showing the three complete files. After any requested revision, show the full current contents of all three files again before asking for final confirmation.
+Present the Arena Preface followed by the full contents of all three `DESIGN_BRIEF.md` drafts in one confirmation sequence. Do not ask for approval after the preface or after an individual file. A summary, abbreviated preview, diff, or table is not a substitute for showing all three complete files. After any requested revision, show the preface and the full current contents of all three files again before asking for the single final confirmation.
+
+Before final confirmation, resolve any conflict between the completed seven brief elements and the embedded domain direction. The user-approved seven elements, token summary, replaceability test, and product or technical constraints are the normative implementation contract. The complete domain direction copy is calibration material. If they conflict, the main agent must revise the normative brief, re-run the orthogonality checks, and show all three complete files again; a builder must never decide which part wins.
 
 Ask the user to confirm, replace, or adjust the three complete files. Do not create worktrees or enter Stage 2 until the user explicitly confirms them. Preserve the exact approved contents for Stage 2; do not silently regenerate or rewrite them after approval.
 
+At final confirmation, compute and record a separate SHA-256 for the exact UTF-8 bytes of each approved `DESIGN_BRIEF.md`. Store an approval registry before Stage 2:
+
+```text
+style | approved brief SHA-256 | approval date or turn | reference snapshot ID
+```
+
+Line endings and encoding are part of the protected bytes. Later materialization must reproduce the exact approved file, not a visually equivalent rewrite. Do not write the resulting hash back into `DESIGN_BRIEF.md`: changing the file to insert its own hash would change the whole-file hash. Keep the final value in the external approval registry and Candidate Record.
+
 ## Stage 2: Create Three Worktrees From One Common Ancestor
 
-After confirmation, record the common starting point:
+After confirmation, choose branch and worktree names. Do not record `BASE_SHA` yet. First complete the `.worktrees/` ignore check and leave the main worktree clean so the final common ancestor includes any required `.gitignore` commit.
 
-```bash
-BASE_BRANCH=$(git branch --show-current)
-BASE_SHA=$(git rev-parse HEAD)
-```
-
-PowerShell equivalent:
-
-```powershell
-$baseBranch = git branch --show-current
-$baseSha = git rev-parse HEAD
-```
-
-Choose branch and worktree names. Default branches:
+Default branches:
 
 - `style-a`
 - `style-b`
@@ -317,11 +371,13 @@ If `.worktrees/` is missing, show the user this exact rule and stop to ask for c
 .worktrees/
 ```
 
-Only after the user confirms, add the rule:
+Only after the user confirms, add the rule, stage only `.gitignore`, and inspect the staged diff:
 
 ```bash
 touch .gitignore
 grep -qxF ".worktrees/" .gitignore || printf '%s\n' ".worktrees/" >> .gitignore
+git add .gitignore
+git diff --cached -- .gitignore
 ```
 
 PowerShell equivalent:
@@ -334,7 +390,37 @@ $existingIgnore = Get-Content .gitignore -ErrorAction SilentlyContinue
 if ($existingIgnore -notcontains '.worktrees/') {
   Add-Content -Path .gitignore -Value '.worktrees/'
 }
+git add .gitignore
+git diff --cached -- .gitignore
 ```
+
+Stop after showing the staged diff. If it contains anything beyond the confirmed `.worktrees/` rule, ask the user how to handle the extra change. If the rule was already tracked, do not create an empty commit.
+
+Only when the staged diff contains exactly the confirmed ignore change, commit it:
+
+```bash
+git commit -m "Ignore Vibe Design Arena worktrees"
+```
+
+PowerShell equivalent:
+
+```powershell
+git commit -m "Ignore Vibe Design Arena worktrees"
+```
+
+After either path, verify that the main worktree is clean:
+
+```bash
+git status --short
+```
+
+PowerShell equivalent:
+
+```powershell
+git status --short
+```
+
+If this prints any entry, stop and resolve it before continuing.
 
 Then check branch and path availability using the confirmed names:
 
@@ -371,6 +457,34 @@ foreach ($path in @($styleAWorktree,$styleBWorktree,$styleCWorktree)) {
 
 If those branch names or paths already exist, stop and ask the user for replacement names, or show clearly namespaced alternatives such as `vda-style-a-YYYYMMDD` and ask the user to confirm them before creating any worktrees.
 
+Immediately before creation, verify the main worktree is still clean:
+
+```bash
+git status --short
+```
+
+PowerShell equivalent:
+
+```powershell
+git status --short
+```
+
+Stop if `git status --short` prints any entry. Only after it returns no entries, record the common starting point:
+
+```bash
+BASE_BRANCH=$(git branch --show-current)
+BASE_SHA=$(git rev-parse HEAD)
+```
+
+PowerShell equivalent:
+
+```powershell
+$baseBranch = git branch --show-current
+$baseSha = git rev-parse HEAD
+```
+
+The three style branches must all be created from this final `BASE_SHA`, which includes the `.gitignore` commit when one was required.
+
 Create linked worktrees from the same `BASE_SHA` using the confirmed paths:
 
 ```bash
@@ -401,6 +515,26 @@ After all three worktrees exist and before dispatching any builder, write the ex
 
 Do not regenerate, summarize, paraphrase, or otherwise revise the approved contents while materializing them. If a domain pack was used, verify before commit that the embedded `Domain Direction Source — Complete Verbatim Copy` block in each file still matches its corresponding source under `directions/` line-for-line and contains the entire source file.
 
+Before committing, compute the SHA-256 of each complete materialized file and compare it with that style's approved SHA-256. This whole-file check is mandatory and is not replaced by checking only the embedded domain block. Run the command from the corresponding worktree root or substitute the full worktree file path.
+
+Bash example:
+
+```bash
+ACTUAL_BRIEF_SHA256=$(sha256sum DESIGN_BRIEF.md | awk '{print $1}')
+test "$ACTUAL_BRIEF_SHA256" = "$APPROVED_BRIEF_SHA256"
+```
+
+PowerShell example:
+
+```powershell
+$actualBriefSha256 = (Get-FileHash -Algorithm SHA256 DESIGN_BRIEF.md).Hash
+if ($actualBriefSha256 -ne $approvedBriefSha256) {
+  throw 'DESIGN_BRIEF.md does not match the user-approved SHA-256'
+}
+```
+
+If any hash differs, stop and rematerialize the exact approved bytes before dispatch. Do not ask the builder to reconcile the difference.
+
 Commit each `DESIGN_BRIEF.md` on its own style branch before Stage 3 so the brief is part of that branch, not a temporary file retained only by the main agent.
 
 Bash:
@@ -429,7 +563,23 @@ git -C $styleCWorktree add DESIGN_BRIEF.md
 git -C $styleCWorktree commit -m "Add approved Vibe Design Arena brief for style C"
 ```
 
-For each worktree, verify that `DESIGN_BRIEF.md` is tracked, the brief commit exists on the expected branch, and the worktree is clean before dispatch. If writing, verification, or commit fails for any style, stop and repair that style's branch before dispatching builders; do not let one builder begin without its committed brief.
+Immediately after each brief commit, record its independent commit hash:
+
+```bash
+BRIEF_COMMIT_A=$(git -C "$STYLE_A_WORKTREE" rev-parse HEAD)
+BRIEF_COMMIT_B=$(git -C "$STYLE_B_WORKTREE" rev-parse HEAD)
+BRIEF_COMMIT_C=$(git -C "$STYLE_C_WORKTREE" rev-parse HEAD)
+```
+
+PowerShell equivalent:
+
+```powershell
+$briefCommitA = git -C $styleAWorktree rev-parse HEAD
+$briefCommitB = git -C $styleBWorktree rev-parse HEAD
+$briefCommitC = git -C $styleCWorktree rev-parse HEAD
+```
+
+For each worktree, verify that `DESIGN_BRIEF.md` is tracked, its whole-file SHA-256 still equals the approved value, the recorded brief commit exists on the expected branch, and the worktree is clean before dispatch. If writing, verification, or commit fails for any style, stop and repair that style's branch before dispatching builders; do not let one builder begin without its committed brief.
 
 Use one common ancestor because:
 
@@ -443,6 +593,8 @@ Use one common ancestor because:
 
 Use sub-agents or dispatch when available. Give each builder only its own worktree path. Its approved, committed style brief is the `DESIGN_BRIEF.md` file at that worktree's root.
 
+Reuse the single frozen Arena reference snapshot created in Stage 1. Do not compute a per-candidate snapshot and do not refresh it at dispatch time. Immediately before dispatch, verify every reference that a builder will receive against the manifest's absolute path and SHA-256. If any check fails, stop and restore access to the frozen bytes, or ask the user whether to restart the entire Arena with a new snapshot or cancel.
+
 Each builder works in one isolated worktree:
 
 - Style A builder works only in `.worktrees/style-a` on branch `style-a`, unless the user confirmed a different Stage 2 fallback path.
@@ -455,29 +607,33 @@ For each builder, the dispatch must provide:
 
 - The exact assigned worktree path and branch.
 - The product snapshot and technical snapshot.
+- The recorded brief commit, approved brief SHA-256, frozen reference snapshot ID, absolute `SKILL_ROOT`, Skill commit or hashed provenance, and the relevant manifest entries.
 - An explicit instruction to read the complete `DESIGN_BRIEF.md` at the assigned worktree root before implementing. This file always exists and contains at least the approved seven brief elements; when domain calibration applies, it also contains that style's complete verbatim direction source already embedded by the main agent.
-- When a domain pack matches, the exact path to `references/domain-packs/<domain-pack>/shared-judgments.md` and an instruction to read it completely.
+- When a domain pack matches, the frozen manifest entry for `shared-judgments.md`: its exact absolute snapshot path and SHA-256, plus an instruction to verify the hash and read the file completely. Do not send a relative path or any matching direction-file path.
 - The screens and flows to prioritize.
-- The exact paths to the four universal references—[`references/anti-slop.md`](references/anti-slop.md), [`references/visual-quality-bar.md`](references/visual-quality-bar.md), [`references/interaction-quality-bar.md`](references/interaction-quality-bar.md), and [`references/arena-scorecard.md`](references/arena-scorecard.md)—and an instruction to read their complete original text before implementing. The main agent must not paraphrase, condense, or substitute excerpts for these files in the dispatch prompt.
-- A requirement to use `references/anti-slop.md` within the approved brief, while leaving the one-time judgment about whether all three candidates are orthogonal to the main agent's completed Stage 1 work.
-- A requirement to self-check the finished implementation against `references/visual-quality-bar.md` and `references/interaction-quality-bar.md`, verify that the approved brief's signature element and anti-default are present in the code, then report pass/fail against every applicable gate in `references/arena-scorecard.md`.
+- The frozen manifest entries for the four universal references—`anti-slop.md`, `visual-quality-bar.md`, `interaction-quality-bar.md`, and `arena-scorecard.md`—including each exact absolute snapshot path and SHA-256, plus an instruction to verify every hash and read each complete original file before implementing. The main agent must not send paths relative to the product worktree, paraphrase, condense, or substitute excerpts for these files in the dispatch prompt.
+- A requirement to use the frozen `anti-slop.md` manifest entry within the approved brief, while leaving the one-time judgment about whether all three candidates are orthogonal to the main agent's completed Stage 1 work.
+- A requirement to self-check the finished implementation against the frozen `visual-quality-bar.md` and `interaction-quality-bar.md` manifest entries, verify that the approved brief's signature element and anti-default are present in the code, then report preliminary pass/fail against every applicable gate in the frozen `arena-scorecard.md`.
 - The allowed scope: frontend redesign only; if any change outside that scope is needed, report it to the main agent, and have the main agent stop and ask the user to confirm before continuing.
 - The expected validation commands.
 - The requirement to preserve functionality and avoid unrelated refactors.
 
 Do not include any other domain-pack path in a builder dispatch, and do not ask a builder to discover or browse the domain-pack directory. The builder uses the assigned `DESIGN_BRIEF.md` as its only style-specific source.
 
+Inside the brief, the user-approved seven elements and associated implementation constraints are normative. The embedded domain direction is calibration material. If a builder perceives a conflict, it must stop and report it to the main agent; it must not reinterpret, rewrite, or choose between the two.
+
 Each builder should:
 
 1. Inspect the local worktree.
-2. Verify that root-level `DESIGN_BRIEF.md` exists, is tracked, and has already been committed on the assigned branch. If it is missing, untracked, or uncommitted, stop and report the boundary failure to the main agent instead of implementing from a prompt summary.
-3. Read the complete `DESIGN_BRIEF.md`, all four universal references, and `shared-judgments.md` when that extra path was supplied.
-4. Run the project's install command from the Stage 1 technical snapshot inside this worktree before making changes. Report installation failures to the main agent; the main agent must stop and ask the user whether to retry, fix the environment, skip this style, or cancel. On Windows, if the failure is `spawn EPERM` from Node, Vite, esbuild, or Vitest, treat it as a likely sandbox or OS execution-permission issue and retry the same command with escalation before treating the product code as broken.
+2. Verify that root-level `DESIGN_BRIEF.md` exists, is tracked, and has already been committed on the assigned branch. Compare its SHA-256 with the approved value and verify that it matches the file at the recorded brief commit. If any check fails, mark the candidate `FAIL` and return it to the main agent without implementing from a prompt summary.
+3. Recompute the SHA-256 of every supplied absolute reference path and compare it with the frozen manifest. If a path is unavailable or any hash differs, stop and return the candidate to the main agent without implementing. Only after all checks pass, read the complete `DESIGN_BRIEF.md`, all four universal references, and `shared-judgments.md` when that extra manifest entry was supplied.
+4. Run the project's install command from the Stage 1 technical snapshot inside this worktree before making changes. Report installation failures to the main agent; the available outcomes are to fix the environment and retry, assign a replacement builder and retry the same style, or cancel the entire Arena. Do not skip a style or continue with fewer than three candidates. On Windows, if the failure is `spawn EPERM` from Node, Vite, esbuild, or Vitest, treat it as a likely sandbox or OS execution-permission issue and retry the same command with escalation before treating the product code as broken.
 5. Implement the complete approved style direction.
 6. Run the relevant lint, typecheck, test, or build commands available in the project. Apply the same `spawn EPERM` retry rule to validation commands.
-7. Perform the required reference-based self-check: inspect the implementation against the visual and interaction quality bars, confirm the brief's signature element and anti-default in code, and record the scorecard's pass/fail results.
-8. Summarize changed files, visual decisions, validation results, risks, and the self-check results for the main agent. If browser preview was intentionally deferred to the main agent, say that explicitly instead of presenting it as an implementation failure.
-9. Commit the branch when its version is ready:
+7. Perform a preliminary reference-based self-check: inspect the implementation against the visual and interaction quality bars, confirm the brief's signature element and anti-default in code, and record the scorecard's preliminary pass/fail results. A rendered item without rendered evidence must be `FAIL`, not assumed `PASS`; the main agent owns final qualification in Stage 4.5.
+8. Summarize changed files, visual decisions, validation results, risks, and the preliminary self-check results for the main agent. If browser preview was intentionally deferred to the main agent, identify every rendered item still lacking evidence.
+9. Before committing, verify that `git diff --exit-code <brief-commit> -- DESIGN_BRIEF.md` succeeds and that the current file SHA-256 equals the approved SHA-256. If either check fails, automatically mark the candidate `FAIL`, stop, and return it to the main agent. Do not silently restore or edit the brief.
+10. Commit the branch when its version is ready:
 
 ```bash
 git status --short
@@ -495,7 +651,27 @@ git commit -m "Implement Vibe Design Arena style A"
 
 Use the matching style letter in the commit message.
 
-If sub-agent or dispatch tooling is unavailable, execute the three branches sequentially while preserving the same worktree isolation and tell the user that parallel dispatch was unavailable.
+After the implementation commit, verify brief integrity again:
+
+```bash
+git diff --exit-code "$BRIEF_COMMIT" HEAD -- DESIGN_BRIEF.md
+ACTUAL_BRIEF_SHA256=$(sha256sum DESIGN_BRIEF.md | awk '{print $1}')
+test "$ACTUAL_BRIEF_SHA256" = "$APPROVED_BRIEF_SHA256"
+```
+
+PowerShell equivalent:
+
+```powershell
+git diff --exit-code $briefCommit HEAD -- DESIGN_BRIEF.md
+$actualBriefSha256 = (Get-FileHash -Algorithm SHA256 DESIGN_BRIEF.md).Hash
+if ($actualBriefSha256 -ne $approvedBriefSha256) {
+  throw 'DESIGN_BRIEF.md changed after approval'
+}
+```
+
+Any difference automatically fails the candidate and returns it for repair before preview. Do not enter Stage 4 with a modified brief.
+
+If sub-agent or dispatch tooling is unavailable, execute the three branches sequentially while preserving the same worktree isolation and tell the user that parallel dispatch was unavailable. The same three-candidate completion gate still applies.
 
 ## Stage 4: Start And Track Preview Servers
 
@@ -627,26 +803,62 @@ foreach ($url in $previewUrls) {
 }
 ```
 
-If HTTP probing still gets no response after the retry loop, treat that style's preview as failed to start. Report the failure, including the URL, port, command, process ID or session ID, and log paths, instead of assuming the preview succeeded.
+If HTTP probing still gets no response after the retry loop, treat that style's preview as failed to start. Report the failure, including the URL, port, command, process ID or session ID, and log paths. Then choose only one of these paths: repair the preview environment and retry; give the user the exact manual command and verify the resulting rendered candidate; or produce a complete static evidence bundle captured from the actually rendered candidate. Do not silently continue with a dead URL or with source inspection alone.
+
+A static evidence bundle must still include the required viewport and state captures plus recorded keyboard, focus, reduced-motion, and interaction results from an actual rendered run. If neither a responding preview nor a complete evidence bundle exists for any style, stop. Stage 5 is blocked until all three candidates are viewable and fully evidenced.
 
 Only stop preview servers that the main agent started and recorded. Do not kill unrelated processes just because they use a similar port.
 
-## Stage 4.5: Aggregate Self-Checks And Run Lightweight Spot Checks
+## Stage 4.5: Build Final Evidence Bundles And Qualify All Three Candidates
 
-Before asking the user to choose, the main agent must aggregate all three builders' scorecard pass/fail self-assessments and run lightweight spot checks rather than repeating every reference check from scratch. At minimum, sample responsive behavior in a narrowed viewport, tab through key controls, and toggle `prefers-reduced-motion` in browser developer tools.
+The main agent is the final evidence owner. Builder scorecards are preliminary self-checks only. Before reading any quality reference, the main agent must verify its absolute path and SHA-256 against the frozen Arena manifest. The main agent must then complete every rendered check required by the frozen `visual-quality-bar.md`, `interaction-quality-bar.md`, and `arena-scorecard.md`; lightweight sampling is not a substitute.
 
-If an observed result conflicts with a builder's self-assessment, report the discrepancy explicitly alongside that builder's original conclusion; do not silently overwrite it. Present all three alternatives to the user regardless of pass/fail status. [`references/arena-scorecard.md`](references/arena-scorecard.md) is only a pass/fail eligibility aid: it does not score, rank, filter, or make the aesthetic choice. The user retains the complete aesthetic judgment.
+Create one evidence bundle per candidate. Record a bundle path or artifact identifiers outside the product branch unless the user explicitly asks to track evidence files. Each bundle must include:
 
-Give the user a comparison table:
+- style, branch, implementation commit, brief commit, approved brief SHA-256, reference snapshot ID, absolute `SKILL_ROOT`, Skill commit or hashed provenance, and the supplied manifest entries;
+- route and viewport for every capture, including `320px`, a medium or tablet width, and a wide desktop width;
+- screenshots of the primary screen, densest view, and applicable loading, empty, error, disabled, and stale-data states;
+- edge-content captures for long text, missing values, negative values, and extreme numeric values where applicable;
+- keyboard traversal and visible-focus results, plus the `200%` zoom result;
+- actual reduced-motion results and the applicable interaction-acceptance checks, including rapid toggling and focus return;
+- validation commands and results;
+- every failed item, the attempted fix, and the result of the subsequent retest.
 
-- Style letter and name.
-- Branch.
-- Preview URL.
-- Commit hash.
-- Validation commands and results.
-- Builder scorecard self-assessment and any discrepancy found in the main agent's spot checks.
-- Main visual thesis.
-- Known risks.
+Do not mark a rendered item `PASS` without evidence in that candidate's bundle. Source code, a media query, a builder claim, or one successful viewport is not rendered evidence.
+
+Before final qualification, recheck that `DESIGN_BRIEF.md` still matches both the recorded brief commit and approved SHA-256. Any difference automatically fails the candidate and returns it for repair.
+
+For every failed scorecard item, run this loop:
+
+1. Return the exact failed item IDs and evidence to the same builder or a replacement builder.
+2. Implement the repair on that candidate's branch.
+3. Re-run the candidate's validation commands.
+4. Re-run brief-integrity checks.
+5. Restart or refresh its preview and replace the affected evidence.
+6. Have the main agent re-evaluate the failed items and record the retest result.
+
+Repeat until the candidate passes or the Arena is cancelled. If a candidate cannot be completed, the available outcomes are to fix the environment, assign a replacement builder and retry, or cancel the entire Arena. Do not omit that candidate.
+
+### Hard Gate Before User Selection
+
+Do not enter Stage 5 until all three branches have:
+
+- a complete committed implementation;
+- a responding preview URL or a complete static evidence bundle from an actual rendered run;
+- an unchanged approved `DESIGN_BRIEF.md`;
+- successful required validation commands;
+- a complete main-agent evidence bundle; and
+- `OVERALL QUALIFICATION: PASS`.
+
+The scorecard does not rank qualified candidates or make the aesthetic choice. After all three pass, give the user a comparison table containing:
+
+- style letter and name;
+- branch, implementation commit, brief commit, and brief SHA-256;
+- preview URL or evidence-bundle location;
+- frozen reference snapshot ID, absolute `SKILL_ROOT`, and Skill commit or hashed provenance;
+- validation results and final qualification;
+- main visual thesis; and
+- known risks.
 
 ## Stage 5: User Selection
 
@@ -655,6 +867,8 @@ Ask the user to choose one complete alternative.
 If the user wants more viewing time, allow preview servers and worktrees to remain temporarily. Make clear that final merge and cleanup have not happened yet.
 
 If the user asks for revisions before choosing, revise the relevant whole branch or branches. Do not combine elements across branches.
+
+Any revision invalidates that candidate's previous validation, preview evidence, and qualification. Return it through the full loop: implementation → validation → brief-integrity check → preview → evidence bundle → scorecard. Refresh the three-way comparison only after the revised candidate passes again; do not ask the user to choose from stale evidence.
 
 ## Stage 6: Stop Preview Servers Before Merge And Cleanup
 
@@ -770,39 +984,74 @@ PowerShell equivalent:
 git merge --abort
 ```
 
-After conflicts are resolved, run the relevant lint, build, test, or typecheck commands again. Then show the key final merge result with `git diff` or an equivalent focused diff before completing the merge commit, and ask the user to confirm that the resolved result matches the selected design direction and preserves the necessary main-branch changes.
+After conflicts are resolved, show the key resolved result with `git diff` or an equivalent focused diff before completing the merge commit, and ask the user to confirm that it matches the selected design direction and preserves the necessary main-branch changes.
+
+### Post-Merge Validation Hard Gate
+
+After any merge path completes—fast-forward, conflict-free merge commit, or conflict-resolved merge commit—run the post-merge gate in the original main worktree. Do not treat pre-merge branch validation as a substitute.
+
+First record the merged state and verify brief integrity:
+
+```bash
+POST_MERGE_SHA=$(git rev-parse HEAD)
+git status --short
+ACTUAL_BRIEF_SHA256=$(sha256sum DESIGN_BRIEF.md | awk '{print $1}')
+test "$ACTUAL_BRIEF_SHA256" = "$APPROVED_BRIEF_SHA256"
+```
+
+PowerShell equivalent:
+
+```powershell
+$postMergeSha = git rev-parse HEAD
+git status --short
+$actualBriefSha256 = (Get-FileHash -Algorithm SHA256 DESIGN_BRIEF.md).Hash
+if ($actualBriefSha256 -ne $approvedBriefSha256) {
+  throw 'Merged DESIGN_BRIEF.md no longer matches the approved SHA-256'
+}
+```
+
+If `git status --short` prints any entry, stop and resolve the dirty main worktree before validation.
+
+Then run every relevant lint, build, test, typecheck, or other validation command from the technical snapshot in the main worktree. Record the commands and results against `POST_MERGE_SHA`.
+
+If the main branch advanced independently after `BASE_SHA` or any merge conflict occurred, restart the selected design from the main worktree, probe the preview, and inspect at least the key routes and primary flow. Record this post-merge preview check, then stop that newly recorded preview process before Stage 8.
+
+Any post-merge validation, brief-integrity, or required preview failure blocks Stage 8. Stop and repair the merged result or ask the user how to proceed; do not remove worktrees while the merged state is unverified.
 
 Do not use cherry-pick for the selected design. The selected branch represents a complete version, not a collection of pieces.
 
-## Stage 8: Clean Up Worktrees And Branches
+## Stage 8: Clean Up Worktrees And Retain Unselected Branches
 
 Cleanup happens after the selected branch is merged and preview servers are stopped.
 
-First inspect each worktree:
+First inspect each worktree and record its branch name and commit hash:
 
 ```bash
 git -C <worktree-path> status --short --ignored
+git -C <worktree-path> branch --show-current
+git -C <worktree-path> rev-parse HEAD
 ```
 
 PowerShell equivalent:
 
 ```powershell
 git -C <worktree-path> status --short --ignored
+git -C <worktree-path> branch --show-current
+git -C <worktree-path> rev-parse HEAD
 ```
 
 For the selected branch:
 
 - Ensure it was merged into the main branch.
 - Remove its worktree.
-- Delete its branch with safe delete.
+- Retain its branch by default. If the user separately asks to delete the already-merged selected branch, handle that request only after worktree cleanup with safe delete; never use force delete.
 
 For unselected branches:
 
-- Stop before running `git worktree remove` or `git branch -D` on any unselected branch. Show the user each unselected branch name, its commit hash, and the worktree path that would be removed. Ask whether these unselected versions can be discarded.
-- Do not remove unselected worktrees or force-delete unselected branches unless the user explicitly replies that they can be discarded. A final report after deletion is not enough.
-- If the user does not explicitly confirm discard, do not continue with deletion automatically.
-- After explicit discard confirmation, remove their worktrees.
-- Delete their branches with force delete only after discard is confirmed.
+- Preserve every unselected branch unconditionally. Do not run any safe-delete, force-delete, or equivalent branch-deletion command on an unselected branch.
+- Remove only the linked worktree after confirming that all intended changes are committed and recording the branch name and commit hash.
+- Treat worktree removal and branch retention as separate operations: removing a linked worktree must leave its branch reference intact.
+- After cleanup, verify that each unselected branch still exists at the recorded commit hash and report both values to the user.
 
 Try normal removal first using the actual worktree paths confirmed in Stage 2. Use the recorded path variables or explicit placeholders; do not assume the worktrees are under `.worktrees/` if the user confirmed a fallback path:
 
@@ -834,23 +1083,37 @@ git worktree remove --force <worktree-path>
 
 Do not use `--force` when the worktree contains ambiguous untracked files or user-created artifacts. List those files and ask the user whether to keep, commit, move, or discard them.
 
-After worktrees are removed, delete branches using the actual branch names confirmed in Stage 2:
+After worktrees are removed, verify that every unselected branch remains at its recorded commit hash. Use the actual branch names confirmed in Stage 2:
+
+```bash
+git show-ref --verify "refs/heads/<unselected-branch-1>"
+git rev-parse <unselected-branch-1>
+git show-ref --verify "refs/heads/<unselected-branch-2>"
+git rev-parse <unselected-branch-2>
+```
+
+PowerShell equivalent:
+
+```powershell
+git show-ref --verify "refs/heads/<unselected-branch-1>"
+git rev-parse <unselected-branch-1>
+git show-ref --verify "refs/heads/<unselected-branch-2>"
+git rev-parse <unselected-branch-2>
+```
+
+If the user separately requested deletion of the selected branch, verify that it is merged and use only safe delete:
 
 ```bash
 git branch -d <selected-branch>
-git branch -D <unselected-branch-1>
-git branch -D <unselected-branch-2>
 ```
 
 PowerShell equivalent:
 
 ```powershell
 git branch -d <selected-branch>
-git branch -D <unselected-branch-1>
-git branch -D <unselected-branch-2>
 ```
 
-Use `-d` for the selected branch because it should already be merged. If `git branch -d <selected-branch>` fails, stop, show why the safe-delete check failed, and ask the user whether to keep or delete the branch. Use `-D` for unselected branches only after the user confirms they should be discarded.
+If safe delete fails, stop, show why Git considers the selected branch unmerged, and keep the branch. Never force-delete it. This optional selected-branch action does not alter the unconditional retention rule for unselected branches.
 
 Prune stale worktree metadata and verify final state:
 
@@ -873,9 +1136,14 @@ git status --short
 End with:
 
 - Selected style and branch.
+- Selected brief commit and approved brief SHA-256.
+- Frozen reference snapshot ID, absolute SKILL_ROOT, Skill commit or hashed provenance, and manifest location.
+- Evidence-bundle locations and final qualification results for all three candidates.
 - Merge method used: fast-forward or merge commit.
-- Validation commands run after merge.
+- Validation commands and results for the final post-merge SHA.
+- Post-merge winner preview check when main advanced or conflicts occurred.
 - Worktrees removed.
-- Branches deleted.
+- Branches retained, with the branch name and commit hash for every retained style branch.
+- Selected branch disposition, if the user separately requested its safe deletion.
 - Any preview servers still running, if the user explicitly asked to keep them.
 - Any remaining risks or manual checks.
