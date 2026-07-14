@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibe-design-arena.local/schemas/qa-result.schema.json",
+  "title": "Vibe Design Arena QA Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "arenaId", "style", "candidateGeneration", "candidateCommit",
+    "generatedAt", "configSha256", "baseUrl", "outputRoot", "overall",
+    "environmentBlocked", "proxyDisclosure", "coverage", "checks", "evidence", "browserErrors"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "arenaId": {"type": "string", "minLength": 1},
+    "style": {"enum": ["style-a", "style-b", "style-c"]},
+    "candidateGeneration": {"type": "integer", "minimum": 1},
+    "candidateCommit": {"type": "string", "pattern": "^[0-9a-fA-F]{40,64}$"},
+    "generatedAt": {"type": "string", "minLength": 1},
+    "configSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "baseUrl": {"type": "string", "minLength": 1},
+    "outputRoot": {"type": "string", "minLength": 1},
+    "overall": {"enum": ["PASS", "FAIL", "BLOCKED"]},
+    "environmentBlocked": {"type": "boolean"},
+    "blocker": {"type": ["string", "null"]},
+    "proxyDisclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "isRealBrowserZoom", "deviceScaleFactor"],
+      "properties": {
+        "name": {"const": "equivalent-200-percent-layout"},
+        "isRealBrowserZoom": {"const": false},
+        "deviceScaleFactor": {"const": 1}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "applicable", "notApplicable", "executed", "failed"],
+      "properties": {
+        "required": {"type": "integer", "minimum": 0},
+        "applicable": {"type": "integer", "minimum": 0},
+        "notApplicable": {"type": "integer", "minimum": 0},
+        "executed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0}
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/check"}
+    },
+    "evidence": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/evidence"}
+    },
+    "browserErrors": {
+      "type": "array",
+      "items": {"type": "object"}
+    }
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "scenarioId", "applicability", "status", "evidenceIds", "assertions"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "scenarioId": {"type": "string", "minLength": 1},
+        "viewportId": {"type": ["string", "null"]},
+        "applicability": {"enum": ["required", "applicable", "not-applicable"]},
+        "status": {"enum": ["PASS", "FAIL", "BLOCKED", "NOT-APPLICABLE"]},
+        "reason": {"type": ["string", "null"]},
+        "approvedBy": {"type": ["string", "null"]},
+        "evidenceIds": {"type": "array", "items": {"type": "string"}},
+        "assertions": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "description"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["screenshot", "assertion", "axe", "browser-log", "product-contract", "design-brief", "manual-record"]},
+        "description": {"type": "string", "minLength": 1},
+        "path": {"type": ["string", "null"]},
+        "scenarioId": {"type": ["string", "null"]},
+        "viewportId": {"type": ["string", "null"]},
+        "route": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibe-design-arena.local/schemas/qa-config.schema.json",
+  "title": "Vibe Design Arena Declarative QA Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "viewports", "evidenceDefinitions", "scenarios"],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "timeoutMs": {"type": "integer", "minimum": 500, "maximum": 120000, "default": 15000},
+    "viewports": {
+      "type": "array",
+      "minItems": 3,
+      "items": {"$ref": "#/$defs/viewport"}
+    },
+    "evidenceDefinitions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/evidenceDefinition"}
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/scenario"}
+    }
+  },
+  "$defs": {
+    "viewport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "width", "height"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "width": {"type": "integer", "minimum": 240, "maximum": 7680},
+        "height": {"type": "integer", "minimum": 320, "maximum": 7680}
+      }
+    },
+    "evidenceDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "description"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+        "kind": {"enum": ["product-contract", "design-brief", "manual-record"]},
+        "description": {"type": "string", "minLength": 1},
+        "path": {"type": "string"}
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "applicability", "actions", "assertions"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "applicability": {"enum": ["required", "applicable", "not-applicable"]},
+        "route": {"type": "string"},
+        "reason": {"type": "string", "minLength": 1},
+        "approvedBy": {"type": "string", "minLength": 1},
+        "evidenceIds": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"}
+        },
+        "mode": {"enum": ["standard", "equivalent-200-percent-layout"]},
+        "actions": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/action"}
+        },
+        "assertions": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/assertion"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"applicability": {"const": "not-applicable"}}},
+          "then": {
+            "required": ["reason", "approvedBy", "evidenceIds"],
+            "properties": {
+              "evidenceIds": {"minItems": 1},
+              "actions": {"maxItems": 0},
+              "assertions": {"maxItems": 0}
+            }
+          },
+          "else": {
+            "required": ["route"],
+            "properties": {"assertions": {"minItems": 1}}
+          }
+        }
+      ]
+    },
+    "action": {
+      "oneOf": [
+        {"$ref": "#/$defs/navigateAction"},
+        {"$ref": "#/$defs/clickAction"},
+        {"$ref": "#/$defs/keyboardAction"},
+        {"$ref": "#/$defs/fillAction"},
+        {"$ref": "#/$defs/selectAction"},
+        {"$ref": "#/$defs/waitAction"},
+        {"$ref": "#/$defs/viewportAction"},
+        {"$ref": "#/$defs/reducedMotionAction"},
+        {"$ref": "#/$defs/screenshotAction"},
+        {"$ref": "#/$defs/scrollAction"}
+      ]
+    },
+    "navigateAction": {
+      "type": "object", "additionalProperties": false, "required": ["type", "path"],
+      "properties": {"type": {"const": "navigate"}, "path": {"type": "string"}, "waitUntil": {"enum": ["load", "domcontentloaded", "networkidle"]}}
+    },
+    "clickAction": {
+      "type": "object", "additionalProperties": false, "required": ["type", "selector"],
+      "properties": {"type": {"const": "click"}, "selector": {"type": "string", "minLength": 1}, "repeat": {"type": "integer", "minimum": 1, "maximum": 50}, "delayMs": {"type": "integer", "minimum": 0, "maximum": 5000}}
+    },
+    "keyboardAction": {
+      "type": "object", "additionalProperties": false, "required": ["type", "keys"],
+      "properties": {"type": {"const": "keyboard"}, "keys": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}, "repeat": {"type": "integer", "minimum": 1, "maximum": 100}}
+    },
+    "fillAction": {
+      "type": "object", "additionalProperties": false, "required": ["type", "selector", "value"],
+      "properties": {"type": {"const": "fill"}, "selector": {"type": "string", "minLength": 1}, "value": {"type": "string"}}
+    },
+    "selectAction": {
+      "type": "object", "additionalProperties": false, "required": ["type", "selector", "value"],
+      "properties": {"type": {"const": "select"}, "selector": {"type": "string", "minLength": 1}, "value": {"type": "string"}}
+    },
+    "waitAction": {
+      "type": "object", "additionalProperties": false, "required": ["type"],
+      "properties": {"type": {"const": "wait"}, "ms": {"type": "integer", "minimum": 0, "maximum": 30000}, "selector": {"type": "string", "minLength": 1}, "state": {"enum": ["attached", "detached", "visible", "hidden"]}}
+    },
+    "viewportAction": {
+      "type": "object", "additionalProperties": false, "required": ["type", "width", "height"],
+      "properties": {"type": {"const": "viewport"}, "width": {"type": "integer", "minimum": 240, "maximum": 7680}, "height": {"type": "integer", "minimum": 320, "maximum": 7680}}
+    },
+    "reducedMotionAction": {
+      "type": "object", "additionalProperties": false, "required": ["type", "value"],
+      "properties": {"type": {"const": "reduced-motion"}, "value": {"enum": ["reduce", "no-preference"]}}
+    },
+    "screenshotAction": {
+      "type": "object", "additionalProperties": false, "required": ["type", "name"],
+      "properties": {"type": {"const": "screenshot"}, "name": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"}, "fullPage": {"type": "boolean"}}
+    },
+    "scrollAction": {
+      "type": "object", "additionalProperties": false, "required": ["type", "selector"],
+      "properties": {"type": {"const": "scroll"}, "selector": {"type": "string", "minLength": 1}, "block": {"enum": ["start", "center", "end", "nearest"]}}
+    },
+    "assertion": {
+      "oneOf": [
+        {"$ref": "#/$defs/urlAssertion"}, {"$ref": "#/$defs/hashAssertion"},
+        {"$ref": "#/$defs/attributeAssertion"}, {"$ref": "#/$defs/textAssertion"},
+        {"$ref": "#/$defs/visibilityAssertion"}, {"$ref": "#/$defs/countAssertion"},
+        {"$ref": "#/$defs/focusAssertion"}, {"$ref": "#/$defs/boundingBoxAssertion"},
+        {"$ref": "#/$defs/overflowAssertion"}, {"$ref": "#/$defs/ariaCurrentAssertion"}
+      ]
+    },
+    "assertionBase": {
+      "type": "object",
+      "required": ["id", "type"],
+      "properties": {"id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"}, "type": {"type": "string"}}
+    },
+    "urlAssertion": {
+      "allOf": [{"$ref": "#/$defs/assertionBase"}, {"type": "object", "additionalProperties": false, "required": ["id", "type", "expected"], "properties": {"id": {"type": "string"}, "type": {"const": "url"}, "expected": {"type": "string"}, "mode": {"enum": ["exact", "includes"]}}}]
+    },
+    "hashAssertion": {
+      "allOf": [{"$ref": "#/$defs/assertionBase"}, {"type": "object", "additionalProperties": false, "required": ["id", "type", "expected"], "properties": {"id": {"type": "string"}, "type": {"const": "hash"}, "expected": {"type": "string"}}}]
+    },
+    "attributeAssertion": {
+      "allOf": [{"$ref": "#/$defs/assertionBase"}, {"type": "object", "additionalProperties": false, "required": ["id", "type", "selector", "name", "expected"], "properties": {"id": {"type": "string"}, "type": {"const": "attribute"}, "selector": {"type": "string"}, "name": {"type": "string"}, "expected": {"type": ["string", "null"]}, "mode": {"enum": ["exact", "includes"]}}}]
+    },
+    "textAssertion": {
+      "allOf": [{"$ref": "#/$defs/assertionBase"}, {"type": "object", "additionalProperties": false, "required": ["id", "type", "selector", "expected"], "properties": {"id": {"type": "string"}, "type": {"const": "text"}, "selector": {"type": "string"}, "expected": {"type": "string"}, "mode": {"enum": ["exact", "includes"]}}}]
+    },
+    "visibilityAssertion": {
+      "allOf": [{"$ref": "#/$defs/assertionBase"}, {"type": "object", "additionalProperties": false, "required": ["id", "type", "selector", "expected"], "properties": {"id": {"type": "string"}, "type": {"const": "visibility"}, "selector": {"type": "string"}, "expected": {"type": "boolean"}}}]
+    },
+    "countAssertion": {
+      "allOf": [{"$ref": "#/$defs/assertionBase"}, {"type": "object", "additionalProperties": false, "required": ["id", "type", "selector"], "properties": {"id": {"type": "string"}, "type": {"const": "count"}, "selector": {"type": "string"}, "exact": {"type": "integer", "minimum": 0}, "min": {"type": "integer", "minimum": 0}, "max": {"type": "integer", "minimum": 0}}}]
+    },
+    "focusAssertion": {
+      "allOf": [{"$ref": "#/$defs/assertionBase"}, {"type": "object", "additionalProperties": false, "required": ["id", "type", "selector"], "properties": {"id": {"type": "string"}, "type": {"const": "focus"}, "selector": {"type": "string"}, "visibleIndicator": {"type": "boolean"}}}]
+    },
+    "boundingBoxAssertion": {
+      "allOf": [{"$ref": "#/$defs/assertionBase"}, {"type": "object", "additionalProperties": false, "required": ["id", "type", "selector"], "properties": {"id": {"type": "string"}, "type": {"const": "bounding-box"}, "selector": {"type": "string"}, "minWidth": {"type": "number", "minimum": 0}, "minHeight": {"type": "number", "minimum": 0}, "topMin": {"type": "number"}, "topMax": {"type": "number"}, "withinViewport": {"type": "boolean"}}}]
+    },
+    "overflowAssertion": {
+      "allOf": [{"$ref": "#/$defs/assertionBase"}, {"type": "object", "additionalProperties": false, "required": ["id", "type", "expected"], "properties": {"id": {"type": "string"}, "type": {"const": "overflow"}, "selector": {"type": "string"}, "axis": {"enum": ["x", "y", "both"]}, "expected": {"type": "boolean"}}}]
+    },
+    "ariaCurrentAssertion": {
+      "allOf": [{"$ref": "#/$defs/assertionBase"}, {"type": "object", "additionalProperties": false, "required": ["id", "type", "selector", "value", "exactCount"], "properties": {"id": {"type": "string"}, "type": {"const": "aria-current"}, "selector": {"type": "string"}, "value": {"type": "string"}, "exactCount": {"type": "integer", "minimum": 0}}}]
+    }
+  }
+}

@@ -70,6 +70,19 @@
     }
   },
   "$defs": {
+    "gateStatus": {"enum": ["PENDING", "PASS", "FAIL", "BLOCKED"]},
+    "review": {
+      "type": "object",
+      "required": ["status", "reviewer", "timestamp", "candidateCommit", "qaResultSha256", "evidenceIds"],
+      "properties": {
+        "status": {"$ref": "#/$defs/gateStatus"},
+        "reviewer": {"type": ["string", "null"]},
+        "timestamp": {"type": ["string", "null"]},
+        "candidateCommit": {"type": ["string", "null"]},
+        "qaResultSha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "evidenceIds": {"type": "array", "items": {"type": "string"}}
+      }
+    },
     "style": {
       "type": "object",
       "required": [
@@ -77,11 +90,24 @@
         "worktree",
         "candidateGeneration",
         "brief",
+        "qaResultPath",
+        "qaResultSha256",
         "preview",
+        "reviews",
         "qualification"
       ],
       "properties": {
         "candidateGeneration": {"type": "integer", "minimum": 1},
+        "qaResultPath": {"type": ["string", "null"]},
+        "qaResultSha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "reviews": {
+          "type": "object",
+          "required": ["visual", "direction"],
+          "properties": {
+            "visual": {"$ref": "#/$defs/review"},
+            "direction": {"$ref": "#/$defs/review"}
+          }
+        },
         "qualification": {
           "type": "object",
           "required": [
@@ -91,7 +117,15 @@
             "mainAgentVisualReview",
             "directionConsistencyReview",
             "overall"
-          ]
+          ],
+          "properties": {
+            "briefIntegrity": {"$ref": "#/$defs/gateStatus"},
+            "validation": {"$ref": "#/$defs/gateStatus"},
+            "automatedQa": {"$ref": "#/$defs/gateStatus"},
+            "mainAgentVisualReview": {"$ref": "#/$defs/gateStatus"},
+            "directionConsistencyReview": {"$ref": "#/$defs/gateStatus"},
+            "overall": {"$ref": "#/$defs/gateStatus"}
+          }
         }
       }
     }

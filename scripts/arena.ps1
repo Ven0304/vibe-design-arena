@@ -54,6 +54,7 @@ function New-EmptyReview {
         reviewer = $null
         timestamp = $null
         candidateCommit = $null
+        qaResultSha256 = $null
         evidenceIds = @()
     }
 }
@@ -73,6 +74,7 @@ function New-StyleState {
         implementationCommit = $null
         builderResultPath = $null
         qaResultPath = $null
+        qaResultSha256 = $null
         preview = [pscustomobject][ordered]@{
             executable = $null
             args = @()
@@ -125,6 +127,162 @@ function Get-StateStyle {
     return $property.Value
 }
 
+function Reset-ArenaCandidateQualification {
+    param($StyleState, [switch]$KeepValidation)
+    $StyleState.qaResultPath = $null
+    $StyleState.qaResultSha256 = $null
+    $StyleState.reviews.visual = New-EmptyReview
+    $StyleState.reviews.direction = New-EmptyReview
+    if (-not $KeepValidation) { $StyleState.qualification.validation = 'PENDING' }
+    $StyleState.qualification.automatedQa = 'PENDING'
+    $StyleState.qualification.mainAgentVisualReview = 'PENDING'
+    $StyleState.qualification.directionConsistencyReview = 'PENDING'
+    $StyleState.qualification.overall = 'PENDING'
+}
+
+function Get-ArenaCandidateHead {
+    param($StyleState)
+    if (-not (Test-Path -LiteralPath $StyleState.worktree -PathType Container)) { throw "Candidate worktree is unavailable: $($StyleState.worktree)" }
+    return (Invoke-ArenaGit -Repository $StyleState.worktree -Arguments @('rev-parse','HEAD')).output
+}
+
+function Get-ArenaQaEvidenceIndex {
+    param($QaResult)
+    $index = @{}
+    foreach ($item in @($QaResult.evidence)) {
+        if (-not $item.PSObject.Properties['id'] -or [string]::IsNullOrWhiteSpace([string]$item.id)) { throw 'QA evidence item is missing id.' }
+        $id = [string]$item.id
+        if ($index.ContainsKey($id)) { throw "Duplicate QA evidence ID: $id" }
+        $index[$id] = $item
+    }
+    return $index
+}
+
+function Assert-ArenaQaResultContract {
+    param($ArenaState, $StyleState, $QaResult, [string]$QaPath)
+    foreach ($propertyName in @('schemaVersion','arenaId','style','candidateGeneration','candidateCommit','outputRoot','overall','environmentBlocked','proxyDisclosure','coverage','checks','evidence')) {
+        if ($null -eq $QaResult.PSObject.Properties[$propertyName]) { throw "QA result is missing required property: $propertyName" }
+    }
+    if ($QaResult.schemaVersion -ne '1.0' -or $QaResult.arenaId -ne $ArenaState.arenaId) { throw 'QA result schema or Arena ID mismatch.' }
+    if ($QaResult.style -ne $StyleState.branch -or [int]$QaResult.candidateGeneration -ne [int]$StyleState.candidateGeneration) { throw 'QA result style or candidate generation mismatch.' }
+    if ($QaResult.candidateCommit -ne $StyleState.implementationCommit) { throw 'QA result is stale for the recorded implementation commit.' }
+    $actualHead = Get-ArenaCandidateHead -StyleState $StyleState
+    if ($actualHead -ne $StyleState.implementationCommit -or $actualHead -ne $QaResult.candidateCommit) { throw 'QA result candidate commit does not match the current worktree HEAD.' }
+
+    $expectedEvidenceRoot = [IO.Path]::GetFullPath((Join-Path $ArenaState.paths.recordsRoot "evidence\$($StyleState.branch)"))
+    $resolvedQaPath = (Resolve-Path -LiteralPath $QaPath).Path
+    Assert-ArenaChildPath -Root $expectedEvidenceRoot -Candidate $resolvedQaPath | Out-Null
+    $resolvedOutputRoot = [IO.Path]::GetFullPath([string]$QaResult.outputRoot).TrimEnd('\','/')
+    if (-not $resolvedOutputRoot.Equals($expectedEvidenceRoot.TrimEnd('\','/'), [StringComparison]::OrdinalIgnoreCase)) { throw 'QA result outputRoot must be the registered candidate evidence directory.' }
+    if (@('PASS','FAIL','BLOCKED') -notcontains [string]$QaResult.overall) { throw 'QA result overall must be PASS, FAIL, or BLOCKED.' }
+    if ([bool]$QaResult.environmentBlocked -ne ([string]$QaResult.overall -eq 'BLOCKED')) { throw 'QA result environmentBlocked is inconsistent with overall.' }
+    if ($QaResult.proxyDisclosure.name -ne 'equivalent-200-percent-layout' -or [bool]$QaResult.proxyDisclosure.isRealBrowserZoom -or [int]$QaResult.proxyDisclosure.deviceScaleFactor -ne 1) {
+        throw 'QA result misstates the equivalent-200-percent-layout proxy.'
+    }
+
+    $evidenceIndex = Get-ArenaQaEvidenceIndex -QaResult $QaResult
+    $executedChecks = 0
+    $failedChecks = 0
+    foreach ($check in @($QaResult.checks)) {
+        foreach ($propertyName in @('id','scenarioId','applicability','status','evidenceIds','assertions')) {
+            if ($null -eq $check.PSObject.Properties[$propertyName]) { throw "QA check is missing required property: $propertyName" }
+        }
+        if (@('required','applicable','not-applicable') -notcontains [string]$check.applicability) { throw "QA check has invalid applicability: $($check.id)" }
+        foreach ($evidenceId in @($check.evidenceIds)) {
+            if (-not $evidenceIndex.ContainsKey([string]$evidenceId)) { throw "QA check references unknown evidence ID: $evidenceId" }
+        }
+        if ($check.applicability -eq 'not-applicable') {
+            if ($check.status -ne 'NOT-APPLICABLE' -or [string]::IsNullOrWhiteSpace([string]$check.reason) -or [string]::IsNullOrWhiteSpace([string]$check.approvedBy) -or @($check.evidenceIds).Count -eq 0) {
+                throw "Invalid not-applicable QA declaration: $($check.id)"
+            }
+        } else {
+            $executedChecks++
+            if (@('PASS','FAIL','BLOCKED') -notcontains [string]$check.status) { throw "Executable QA check has invalid status: $($check.id)" }
+            if ($check.status -ne 'PASS') { $failedChecks++ }
+        }
+    }
+    if (@($QaResult.checks).Count -eq 0) { throw 'QA result contains no checks.' }
+    if ([int]$QaResult.coverage.executed -ne $executedChecks -or [int]$QaResult.coverage.failed -ne $failedChecks) { throw 'QA result coverage counters do not match the check records.' }
+    if ($QaResult.overall -eq 'PASS' -and $failedChecks -ne 0) { throw 'QA result claims PASS while an executable check did not pass.' }
+    if ($QaResult.overall -eq 'FAIL' -and $failedChecks -eq 0) { throw 'QA result claims FAIL without a failed executable check.' }
+    if ($QaResult.overall -eq 'BLOCKED' -and @(@($QaResult.checks) | Where-Object { $_.status -eq 'BLOCKED' }).Count -eq 0) { throw 'QA result claims BLOCKED without a blocked check.' }
+
+    if ($QaResult.overall -eq 'PASS') {
+        $duplicateCheckIds = @(@($QaResult.checks) | Group-Object -Property id | Where-Object { $_.Count -gt 1 })
+        if ($duplicateCheckIds.Count -gt 0) { throw "Passing QA result contains duplicate check IDs: $(@($duplicateCheckIds.Name) -join ', ')" }
+        $standardViewports = @('mobile','tablet','desktop')
+        $universalScenarios = @('primary','dense','touch-targets','keyboard-traversal','focus-visibility','focus-return','reduced-motion','rapid-toggle')
+        foreach ($scenarioId in $universalScenarios) {
+            foreach ($viewportId in $standardViewports) {
+                $matches = @(@($QaResult.checks) | Where-Object { $_.scenarioId -eq $scenarioId -and $_.viewportId -eq $viewportId -and $_.applicability -eq 'required' -and $_.status -eq 'PASS' })
+                if ($matches.Count -ne 1) { throw "Passing QA result lacks exactly one required PASS for $scenarioId at $viewportId." }
+            }
+        }
+        $proxyChecks = @(@($QaResult.checks) | Where-Object { $_.scenarioId -eq 'equivalent-200-percent-layout' -and $_.viewportId -eq 'desktop-equivalent-200-percent' -and $_.applicability -eq 'required' -and $_.status -eq 'PASS' })
+        if ($proxyChecks.Count -ne 1) { throw 'Passing QA result lacks the required equivalent-200-percent-layout proxy check.' }
+
+        $productScenarios = @('loading','empty','error','disabled','stale-data','long-text','missing-value','negative-number','extreme-number','container-overflow')
+        foreach ($scenarioId in $productScenarios) {
+            $scenarioChecks = @(@($QaResult.checks) | Where-Object { $_.scenarioId -eq $scenarioId })
+            if ($scenarioChecks.Count -eq 0) { throw "Passing QA result omits product-state declaration: $scenarioId" }
+            $naChecks = @($scenarioChecks | Where-Object { $_.applicability -eq 'not-applicable' -and $_.status -eq 'NOT-APPLICABLE' })
+            if ($naChecks.Count -gt 0) {
+                if ($naChecks.Count -ne 1 -or $scenarioChecks.Count -ne 1) { throw "Product state $scenarioId must be either one valid N/A declaration or executed checks, not both." }
+            } else {
+                foreach ($viewportId in $standardViewports) {
+                    $matches = @($scenarioChecks | Where-Object { $_.viewportId -eq $viewportId -and $_.applicability -in @('required','applicable') -and $_.status -eq 'PASS' })
+                    if ($matches.Count -ne 1) { throw "Passing QA result lacks exactly one executed PASS for $scenarioId at $viewportId." }
+                }
+            }
+        }
+
+        foreach ($check in @($QaResult.checks | Where-Object { $_.applicability -in @('required','applicable') })) {
+            $assertionTypes = @($check.assertions | ForEach-Object { [string]$_.type })
+            foreach ($requiredType in @('overflow','axe','browser-errors')) {
+                if ($assertionTypes -notcontains $requiredType) { throw "Passing QA check $($check.id) lacks required $requiredType evidence." }
+            }
+            $referencedEvidence = @($check.evidenceIds | ForEach-Object { $evidenceIndex[[string]$_] })
+            if (@($referencedEvidence | Where-Object { $_.kind -eq 'screenshot' }).Count -eq 0) { throw "Passing QA check $($check.id) lacks screenshot evidence." }
+            if (@($referencedEvidence | Where-Object { $_.kind -eq 'axe' }).Count -eq 0) { throw "Passing QA check $($check.id) lacks axe evidence." }
+        }
+    }
+
+    foreach ($item in $evidenceIndex.Values) {
+        if ($item.kind -eq 'screenshot') {
+            if (-not $item.PSObject.Properties['path'] -or [string]::IsNullOrWhiteSpace([string]$item.path)) { throw "Screenshot evidence is missing a path: $($item.id)" }
+            $screenshotPath = (Resolve-Path -LiteralPath ([string]$item.path)).Path
+            Assert-ArenaChildPath -Root $expectedEvidenceRoot -Candidate $screenshotPath | Out-Null
+        } elseif ($item.PSObject.Properties['path'] -and -not [string]::IsNullOrWhiteSpace([string]$item.path) -and -not (Test-Path -LiteralPath ([string]$item.path))) {
+            throw "QA evidence path does not exist: $($item.path)"
+        }
+    }
+    if ($QaResult.overall -eq 'PASS') {
+        foreach ($viewportId in @('mobile','tablet','desktop','desktop-equivalent-200-percent')) {
+            $count = @($evidenceIndex.Values | Where-Object { $_.kind -eq 'screenshot' -and $_.viewportId -eq $viewportId }).Count
+            if ($count -eq 0) { throw "Passing QA result lacks screenshot evidence for viewport: $viewportId" }
+        }
+    }
+    return [pscustomobject]@{ evidenceIndex = $evidenceIndex; expectedEvidenceRoot = $expectedEvidenceRoot; actualHead = $actualHead }
+}
+
+function Assert-ArenaReviewEvidence {
+    param($StyleState, [string[]]$Ids, [ValidateSet('visual','direction')][string]$ReviewType)
+    if (-not $StyleState.qaResultPath -or -not (Test-Path -LiteralPath $StyleState.qaResultPath)) { throw 'Review signing requires an imported QA result.' }
+    $qaHash = Get-ArenaSha256 -Path $StyleState.qaResultPath
+    if ($qaHash -ne $StyleState.qaResultSha256) { throw 'Imported QA result changed after import; re-import it before signing.' }
+    $qaResult = Read-ArenaJson -Path $StyleState.qaResultPath
+    $evidenceIndex = Get-ArenaQaEvidenceIndex -QaResult $qaResult
+    foreach ($id in @($Ids)) { if (-not $evidenceIndex.ContainsKey([string]$id)) { throw "Review references unknown evidence ID: $id" } }
+    $referenced = @($Ids | ForEach-Object { $evidenceIndex[[string]$_] })
+    if (@($referenced | Where-Object { $_.kind -eq 'screenshot' }).Count -eq 0) { throw "$ReviewType review requires screenshot evidence." }
+    if ($ReviewType -eq 'visual') {
+        foreach ($viewportId in @('mobile','tablet','desktop')) {
+            if (@($referenced | Where-Object { $_.kind -eq 'screenshot' -and $_.viewportId -eq $viewportId }).Count -eq 0) { throw "Visual review must cite an inspected $viewportId screenshot." }
+        }
+    }
+    if ($ReviewType -eq 'direction' -and @($referenced | Where-Object { $_.kind -eq 'design-brief' }).Count -eq 0) { throw 'Direction review must cite the frozen design-brief evidence.' }
+    return $qaHash
+}
 function Save-NewArenaState {
     param($ArenaState, [string]$Operation)
     $lock = $null
@@ -460,10 +618,11 @@ try {
             $builderResult = Read-ArenaJson -Path $ResultPath
             $updated = Update-ArenaState -Operation 'import-builder-result' -Revision $ExpectedRevision -Mutation {
                 param($arenaState)
-                if ($arenaState.stage -notin @('worktrees-ready','building')) { throw 'Builder results can only be imported while worktrees are ready or building.' }
+                if ($arenaState.stage -notin @('worktrees-ready','building','previews-ready','qualifying')) { throw 'Builder results can only be imported before selection.' }
                 if ($builderResult.schemaVersion -ne '1.0' -or $builderResult.arenaId -ne $arenaState.arenaId) { throw 'Builder result schema or Arena ID mismatch.' }
                 $name = [string]$builderResult.style
                 $styleState = Get-StateStyle $arenaState $name
+                if ($styleState.preview.pid) { throw "Stop the recorded preview before importing a revised builder result for $name." }
                 if ($builderResult.dispatchId -ne $styleState.dispatchId -or [int]$builderResult.candidateGeneration -ne [int]$styleState.candidateGeneration) { throw 'Stale builder result: dispatch ID or candidate generation mismatch.' }
                 if ($builderResult.branch -ne $styleState.branch -or $builderResult.briefCommit -ne $styleState.brief.commit -or $builderResult.briefSha256 -ne $styleState.brief.approvedSha256) { throw 'Builder result branch or brief identity mismatch.' }
                 $actualHead = (Invoke-ArenaGit -Repository $styleState.worktree -Arguments @('rev-parse','HEAD')).output
@@ -479,14 +638,10 @@ try {
                 $styleState.implementationCommit = $actualHead
                 $styleState.qualification.briefIntegrity = 'PASS'
                 $styleState.qualification.validation = if ($builderResult.validation.overall -eq 'PASS') { 'PASS' } else { 'FAIL' }
-                $styleState.reviews.visual = New-EmptyReview
-                $styleState.reviews.direction = New-EmptyReview
-                $styleState.qualification.automatedQa = 'PENDING'
-                $styleState.qualification.mainAgentVisualReview = 'PENDING'
-                $styleState.qualification.directionConsistencyReview = 'PENDING'
-                $styleState.qualification.overall = 'PENDING'
+                Reset-ArenaCandidateQualification -StyleState $styleState -KeepValidation
                 $arenaState.stage = 'building'
                 $arenaState.status = 'ready'
+                $arenaState.blockingReason = $null
             }
             $updated | ConvertTo-Json -Depth 30
         }
@@ -817,9 +972,154 @@ try {
             $updated | ConvertTo-Json -Depth 30
         }
 
-        { $_ -in @('import-qa-result','sign-visual-review','sign-direction-review','qualify') } {
-            throw "$Command is installed as a public interface but is implemented in Phase 2."
+        'import-qa-result' {
+            if (-not $ResultPath) { throw 'import-qa-result requires -ResultPath.' }
+            $qaResult = Read-ArenaJson -Path $ResultPath
+            $updated = Update-ArenaState -Operation 'import-qa-result' -Revision $ExpectedRevision -Mutation {
+                param($arenaState)
+                if ($arenaState.stage -notin @('previews-ready','qualifying')) { throw 'QA results can only be imported after all previews are ready and before selection.' }
+                $name = [string]$qaResult.style
+                $styleState = Get-StateStyle $arenaState $name
+                $contract = Assert-ArenaQaResultContract -ArenaState $arenaState -StyleState $styleState -QaResult $qaResult -QaPath $ResultPath
+                $candidateDirectory = Join-Path $arenaState.paths.recordsRoot "candidates\$name"
+                [IO.Directory]::CreateDirectory($candidateDirectory) | Out-Null
+                $storedPath = Join-Path $candidateDirectory 'qa-results.json'
+                [IO.File]::Copy((Resolve-Path -LiteralPath $ResultPath).Path, $storedPath, $true)
+                $styleState.qaResultPath = $storedPath
+                $styleState.qaResultSha256 = Get-ArenaSha256 -Path $storedPath
+                $styleState.reviews.visual = New-EmptyReview
+                $styleState.reviews.direction = New-EmptyReview
+                $styleState.qualification.automatedQa = [string]$qaResult.overall
+                $styleState.qualification.mainAgentVisualReview = 'PENDING'
+                $styleState.qualification.directionConsistencyReview = 'PENDING'
+                $styleState.qualification.overall = 'PENDING'
+                $arenaState.stage = 'qualifying'
+                if ($qaResult.overall -eq 'BLOCKED') {
+                    $arenaState.status = 'blocked'
+                    $arenaState.blockingReason = [string]$qaResult.blocker
+                } else {
+                    $arenaState.status = 'ready'
+                    $arenaState.blockingReason = $null
+                }
+            }
+            $updated | ConvertTo-Json -Depth 30
         }
+
+        'sign-visual-review' {
+            if (-not $Style -or -not $Result -or [string]::IsNullOrWhiteSpace($Reviewer) -or [string]::IsNullOrWhiteSpace($CandidateCommit) -or -not $EvidenceIds -or $EvidenceIds.Count -eq 0) {
+                throw 'sign-visual-review requires -Style, -Result, -Reviewer, -CandidateCommit, and -EvidenceIds.'
+            }
+            $updated = Update-ArenaState -Operation 'sign-visual-review' -Revision $ExpectedRevision -Mutation {
+                param($arenaState)
+                if ($arenaState.stage -ne 'qualifying') { throw 'Visual review can only be signed during qualifying.' }
+                $styleState = Get-StateStyle $arenaState $Style
+                $actualHead = Get-ArenaCandidateHead -StyleState $styleState
+                if ($CandidateCommit -ne $styleState.implementationCommit -or $CandidateCommit -ne $actualHead) { throw 'Visual review candidate commit is stale.' }
+                $qaHash = Assert-ArenaReviewEvidence -StyleState $styleState -Ids $EvidenceIds -ReviewType 'visual'
+                $styleState.reviews.visual = [pscustomobject][ordered]@{
+                    status = $Result
+                    reviewer = $Reviewer
+                    timestamp = Get-ArenaUtcNow
+                    candidateCommit = $CandidateCommit
+                    qaResultSha256 = $qaHash
+                    evidenceIds = @($EvidenceIds)
+                }
+                $styleState.qualification.mainAgentVisualReview = $Result
+                $styleState.qualification.overall = 'PENDING'
+                $arenaState.status = 'ready'
+                $arenaState.blockingReason = $null
+            }
+            $updated | ConvertTo-Json -Depth 30
+        }
+
+        'sign-direction-review' {
+            if (-not $Style -or -not $Result -or [string]::IsNullOrWhiteSpace($Reviewer) -or [string]::IsNullOrWhiteSpace($CandidateCommit) -or -not $EvidenceIds -or $EvidenceIds.Count -eq 0) {
+                throw 'sign-direction-review requires -Style, -Result, -Reviewer, -CandidateCommit, and -EvidenceIds.'
+            }
+            $updated = Update-ArenaState -Operation 'sign-direction-review' -Revision $ExpectedRevision -Mutation {
+                param($arenaState)
+                if ($arenaState.stage -ne 'qualifying') { throw 'Direction review can only be signed during qualifying.' }
+                $styleState = Get-StateStyle $arenaState $Style
+                $actualHead = Get-ArenaCandidateHead -StyleState $styleState
+                if ($CandidateCommit -ne $styleState.implementationCommit -or $CandidateCommit -ne $actualHead) { throw 'Direction review candidate commit is stale.' }
+                $qaHash = Assert-ArenaReviewEvidence -StyleState $styleState -Ids $EvidenceIds -ReviewType 'direction'
+                $styleState.reviews.direction = [pscustomobject][ordered]@{
+                    status = $Result
+                    reviewer = $Reviewer
+                    timestamp = Get-ArenaUtcNow
+                    candidateCommit = $CandidateCommit
+                    qaResultSha256 = $qaHash
+                    evidenceIds = @($EvidenceIds)
+                }
+                $styleState.qualification.directionConsistencyReview = $Result
+                $styleState.qualification.overall = 'PENDING'
+                $arenaState.status = 'ready'
+                $arenaState.blockingReason = $null
+            }
+            $updated | ConvertTo-Json -Depth 30
+        }
+
+        'qualify' {
+            if (-not $Style) { throw 'qualify requires -Style.' }
+            $updated = Update-ArenaState -Operation 'qualify' -Revision $ExpectedRevision -Mutation {
+                param($arenaState)
+                if ($arenaState.stage -ne 'qualifying') { throw 'qualify can only run during qualifying.' }
+                $styleState = Get-StateStyle $arenaState $Style
+                $actualHead = Get-ArenaCandidateHead -StyleState $styleState
+                if ($actualHead -ne $styleState.implementationCommit) {
+                    Reset-ArenaCandidateQualification -StyleState $styleState -KeepValidation
+                    $arenaState.stage = 'building'
+                    $arenaState.status = 'blocked'
+                    $arenaState.blockingReason = "$Style changed after builder import. Import a builder result for commit $actualHead; old QA and review signatures are invalid."
+                    return
+                }
+
+                $workingHash = Get-ArenaSha256 -Path (Join-Path $styleState.worktree 'DESIGN_BRIEF.md')
+                $blobHash = Get-ArenaGitBlobSha256 -Repository $styleState.worktree -Commit $actualHead
+                $styleState.qualification.briefIntegrity = if ($workingHash -eq $styleState.brief.approvedSha256 -and $blobHash -eq $styleState.brief.approvedSha256) { 'PASS' } else { 'FAIL' }
+                if ($styleState.qaResultPath -and (Test-Path -LiteralPath $styleState.qaResultPath) -and (Get-ArenaSha256 -Path $styleState.qaResultPath) -eq $styleState.qaResultSha256) {
+                    $qaResult = Read-ArenaJson -Path $styleState.qaResultPath
+                    $styleState.qualification.automatedQa = [string]$qaResult.overall
+                } else {
+                    $styleState.qualification.automatedQa = 'PENDING'
+                }
+
+                $visual = $styleState.reviews.visual
+                $visualCurrent = $visual.candidateCommit -eq $actualHead -and $visual.qaResultSha256 -eq $styleState.qaResultSha256
+                $styleState.qualification.mainAgentVisualReview = if ($visualCurrent) { [string]$visual.status } else { 'PENDING' }
+                $direction = $styleState.reviews.direction
+                $directionCurrent = $direction.candidateCommit -eq $actualHead -and $direction.qaResultSha256 -eq $styleState.qaResultSha256
+                $styleState.qualification.directionConsistencyReview = if ($directionCurrent) { [string]$direction.status } else { 'PENDING' }
+
+                $gateValues = @(
+                    $styleState.qualification.briefIntegrity,
+                    $styleState.qualification.validation,
+                    $styleState.qualification.automatedQa,
+                    $styleState.qualification.mainAgentVisualReview,
+                    $styleState.qualification.directionConsistencyReview
+                )
+                $styleState.qualification.overall = if (@($gateValues | Where-Object { $_ -ne 'PASS' }).Count -eq 0) { 'PASS' } else { 'FAIL' }
+                $allQualified = $true
+                foreach ($name in @('style-a','style-b','style-c')) {
+                    if ((Get-StateStyle $arenaState $name).qualification.overall -ne 'PASS') { $allQualified = $false }
+                }
+                if ($allQualified) {
+                    $arenaState.stage = 'selection-ready'
+                    $arenaState.status = 'ready'
+                    $arenaState.blockingReason = $null
+                } elseif ($styleState.qualification.overall -eq 'PASS') {
+                    $arenaState.stage = 'qualifying'
+                    $arenaState.status = 'ready'
+                    $arenaState.blockingReason = $null
+                } else {
+                    $arenaState.stage = 'qualifying'
+                    $arenaState.status = 'blocked'
+                    $arenaState.blockingReason = "$Style is not qualified. All five qualification gates must be PASS."
+                }
+            }
+            $updated | ConvertTo-Json -Depth 30
+        }
+
     }
 } catch {
     $revision = -1

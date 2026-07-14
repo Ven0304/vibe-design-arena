@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 
 $scriptRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $arenaScript = Join-Path $scriptRoot 'arena.ps1'
-$coreModule = Join-Path $scriptRoot 'lib\Arena.Core.psm1'
+
 $utf8NoBom = New-Object Text.UTF8Encoding($false)
 $succeeded = $false
 
@@ -65,7 +65,15 @@ function Invoke-ArenaProcess {
             $token = [string]$Additional[$i]
             if (-not $token.StartsWith('-')) { throw "Expected a named parameter, got: $token" }
             $key = $token.TrimStart('-')
-            if ($i + 1 -lt $Additional.Count -and -not ([string]$Additional[$i + 1]).StartsWith('-')) {
+            if ($key -in @('EvidenceIds','Branches')) {
+                $values = @()
+                while ($i + 1 -lt $Additional.Count -and -not ([string]$Additional[$i + 1]).StartsWith('-')) {
+                    $values += $Additional[$i + 1]
+                    $i++
+                }
+                if ($values.Count -eq 0) { throw "$key requires at least one value." }
+                $boundParameters[$key] = $values
+            } elseif ($i + 1 -lt $Additional.Count -and -not ([string]$Additional[$i + 1]).StartsWith('-')) {
                 $boundParameters[$key] = $Additional[$i + 1]
                 $i++
             } else {
@@ -85,6 +93,61 @@ function Invoke-ArenaProcess {
     return $text | ConvertFrom-Json
 }
 
+function New-TestQaResult {
+    param($ArenaState, [string]$StyleName)
+    $styleState = $ArenaState.styles.PSObject.Properties[$StyleName].Value
+    $evidenceRoot = Join-Path $ArenaState.paths.recordsRoot "evidence\$StyleName"
+    [IO.Directory]::CreateDirectory($evidenceRoot) | Out-Null
+    $pngBytes = [Convert]::FromBase64String('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Z3F8AAAAASUVORK5CYII=')
+    $evidence = @(
+        [pscustomobject][ordered]@{ id = "brief.$StyleName"; kind = 'design-brief'; description = 'Frozen design brief contract'; path = $styleState.brief.frozenPath; scenarioId = $null; viewportId = $null; route = $null }
+    )
+    foreach ($viewportId in @('mobile','tablet','desktop','desktop-equivalent-200-percent')) {
+        $screenshotPath = Join-Path $evidenceRoot "$viewportId.png"
+        [IO.File]::WriteAllBytes($screenshotPath, $pngBytes)
+        $evidence += [pscustomobject][ordered]@{ id = "shot.$StyleName.$viewportId"; kind = 'screenshot'; description = "Qualification smoke screenshot $viewportId"; path = $screenshotPath; scenarioId = 'shared-smoke-evidence'; viewportId = $viewportId; route = $styleState.preview.url }
+        $evidence += [pscustomobject][ordered]@{ id = "axe.$StyleName.$viewportId"; kind = 'axe'; description = "Qualification smoke axe result $viewportId"; path = $null; scenarioId = 'shared-smoke-evidence'; viewportId = $viewportId; route = $styleState.preview.url }
+    }
+
+    $checks = @()
+    $standardViewports = @('mobile','tablet','desktop')
+    $universalScenarios = @('primary','dense','touch-targets','keyboard-traversal','focus-visibility','focus-return','reduced-motion','rapid-toggle')
+    foreach ($scenarioId in $universalScenarios) {
+        foreach ($viewportId in $standardViewports) {
+            $checks += [pscustomobject][ordered]@{
+                id = "qa.$StyleName.$scenarioId.$viewportId"; scenarioId = $scenarioId; viewportId = $viewportId; applicability = 'required'; status = 'PASS'; reason = $null; approvedBy = $null
+                evidenceIds = @("shot.$StyleName.$viewportId", "axe.$StyleName.$viewportId")
+                assertions = @(
+                    [pscustomobject]@{ id = "$scenarioId.$viewportId.overflow"; type = 'overflow'; status = 'PASS'; expected = $false; actual = $false },
+                    [pscustomobject]@{ id = "$scenarioId.$viewportId.axe"; type = 'axe'; status = 'PASS'; expected = 0; actual = @() },
+                    [pscustomobject]@{ id = "$scenarioId.$viewportId.browser"; type = 'browser-errors'; status = 'PASS'; expected = 0; actual = 0 }
+                )
+            }
+        }
+    }
+    $proxyViewport = 'desktop-equivalent-200-percent'
+    $checks += [pscustomobject][ordered]@{
+        id = "qa.$StyleName.equivalent-200-percent-layout.$proxyViewport"; scenarioId = 'equivalent-200-percent-layout'; viewportId = $proxyViewport; applicability = 'required'; status = 'PASS'; reason = $null; approvedBy = $null
+        evidenceIds = @("shot.$StyleName.$proxyViewport", "axe.$StyleName.$proxyViewport")
+        assertions = @(
+            [pscustomobject]@{ id = 'proxy.overflow'; type = 'overflow'; status = 'PASS'; expected = $false; actual = $false },
+            [pscustomobject]@{ id = 'proxy.axe'; type = 'axe'; status = 'PASS'; expected = 0; actual = @() },
+            [pscustomobject]@{ id = 'proxy.browser'; type = 'browser-errors'; status = 'PASS'; expected = 0; actual = 0 }
+        )
+    }
+    foreach ($scenarioId in @('loading','empty','error','disabled','stale-data','long-text','missing-value','negative-number','extreme-number','container-overflow')) {
+        $checks += [pscustomobject][ordered]@{ id = "qa.$StyleName.$scenarioId.not-applicable"; scenarioId = $scenarioId; viewportId = $null; applicability = 'not-applicable'; status = 'NOT-APPLICABLE'; reason = "Smoke product contract excludes $scenarioId behavior."; approvedBy = 'main-agent-smoke'; evidenceIds = @("brief.$StyleName"); assertions = @() }
+    }
+
+    return [pscustomobject][ordered]@{
+        schemaVersion = '1.0'; arenaId = $ArenaState.arenaId; style = $StyleName; candidateGeneration = $styleState.candidateGeneration; candidateCommit = $styleState.implementationCommit
+        generatedAt = [DateTime]::UtcNow.ToString('o'); configSha256 = ('0' * 64); baseUrl = $styleState.preview.url; outputRoot = $evidenceRoot
+        overall = 'PASS'; environmentBlocked = $false; blocker = $null
+        proxyDisclosure = [pscustomobject][ordered]@{ name = 'equivalent-200-percent-layout'; isRealBrowserZoom = $false; deviceScaleFactor = 1 }
+        coverage = [pscustomobject][ordered]@{ required = 25; applicable = 0; notApplicable = 10; executed = 25; failed = 0 }
+        checks = $checks; evidence = $evidence; browserErrors = @()
+    }
+}
 function Get-FreePort {
     $listener = New-Object Net.Sockets.TcpListener([Net.IPAddress]::Loopback, 0)
     try {
@@ -253,22 +316,101 @@ server.listen(port, '127.0.0.1');
         Assert-True (-not $state.styles.PSObject.Properties[$styleName].Value.preview.pid) "$styleName preview PID was not cleared."
     }
 
-    # Phase 1 owns select/merge/cleanup, while Phase 2 owns qualification imports.
-    # This isolated smoke fixture advances only the test run to selection-ready so
-    # the Phase 1 tail can be exercised without implementing Phase 2 early.
-    Import-Module $coreModule -Force
-    $fixture = Read-ArenaJson -Path $statePath
+    # Phase 2 qualification must advance only through public Arena commands.
+    $qaResults = @{}
     foreach ($styleName in @('style-a', 'style-b', 'style-c')) {
-        $styleState = $fixture.styles.PSObject.Properties[$styleName].Value
-        $styleState.qualification.overall = 'PASS'
+        $qaResult = New-TestQaResult -ArenaState $state -StyleName $styleName
+        $qaPath = Join-Path $state.paths.recordsRoot "evidence\$styleName\qa-results.json"
+        Write-TestJson -Path $qaPath -Value $qaResult
+        $qaResults[$styleName] = [pscustomobject]@{ path = $qaPath; result = $qaResult }
     }
-    $fixture.stage = 'selection-ready'
-    $fixture.status = 'ready'
-    $fixture.stateRevision = [int]$fixture.stateRevision + 1
-    $fixture.updatedAt = Get-ArenaUtcNow
-    Write-ArenaJsonAtomic -Path $statePath -Value $fixture
-    Add-ArenaEvent -StatePath $statePath -Command 'phase1-smoke-fixture' -Outcome 'info' -Revision $fixture.stateRevision -Message 'Test-only transition to selection-ready.'
-    $state = $fixture
+
+    $blockedQa = $qaResults['style-a'].result | ConvertTo-Json -Depth 50 | ConvertFrom-Json
+    $blockedQa.overall = 'BLOCKED'
+    $blockedQa.environmentBlocked = $true
+    $blockedQa.blocker = 'Smoke fixture simulates a Playwright environment blocker.'
+    $blockedQa.coverage.required = 1
+    $blockedQa.coverage.notApplicable = 0
+    $blockedQa.coverage.executed = 1
+    $blockedQa.coverage.failed = 1
+    $blockedQa.checks = @([pscustomobject][ordered]@{ id = 'qa.environment.dependencies'; scenarioId = 'environment'; viewportId = $null; applicability = 'required'; status = 'BLOCKED'; reason = $blockedQa.blocker; approvedBy = $null; evidenceIds = @(); assertions = @() })
+    Write-TestJson -Path $qaResults['style-a'].path -Value $blockedQa
+    $state = Invoke-ArenaProcess -Command 'import-qa-result' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-ResultPath', $qaResults['style-a'].path)
+    Assert-True ($state.status -eq 'blocked' -and $state.styles.'style-a'.qualification.automatedQa -eq 'BLOCKED') 'Environment blocker was misclassified as a design failure.'
+
+    $invalidNa = $qaResults['style-a'].result | ConvertTo-Json -Depth 50 | ConvertFrom-Json
+    ($invalidNa.checks | Where-Object { $_.scenarioId -eq 'stale-data' }).reason = ''
+    Write-TestJson -Path $qaResults['style-a'].path -Value $invalidNa
+    $null = Invoke-ArenaProcess -Command 'import-qa-result' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-ResultPath', $qaResults['style-a'].path) -ExpectFailure
+    $afterInvalidNa = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8) | ConvertFrom-Json
+    Assert-True ([int]$afterInvalidNa.stateRevision -eq [int]$state.stateRevision) 'Invalid N/A changed state revision.'
+
+    $staleQa = $qaResults['style-a'].result | ConvertTo-Json -Depth 50 | ConvertFrom-Json
+    $staleQa.candidateCommit = ('0' * 40)
+    Write-TestJson -Path $qaResults['style-a'].path -Value $staleQa
+    $null = Invoke-ArenaProcess -Command 'import-qa-result' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-ResultPath', $qaResults['style-a'].path) -ExpectFailure
+    $afterStaleQa = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8) | ConvertFrom-Json
+    Assert-True ([int]$afterStaleQa.stateRevision -eq [int]$state.stateRevision) 'Stale QA result changed state revision.'
+
+    foreach ($styleName in @('style-a', 'style-b', 'style-c')) {
+        Write-TestJson -Path $qaResults[$styleName].path -Value $qaResults[$styleName].result
+        $state = Invoke-ArenaProcess -Command 'import-qa-result' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-ResultPath', $qaResults[$styleName].path)
+        $styleState = $state.styles.PSObject.Properties[$styleName].Value
+        Assert-True ($styleState.qualification.automatedQa -eq 'PASS') "$styleName QA was not imported as PASS."
+
+        if ($styleName -eq 'style-a') {
+            $null = Invoke-ArenaProcess -Command 'sign-visual-review' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-Style', $styleName, '-Result', 'PASS', '-Reviewer', 'main-agent-smoke', '-CandidateCommit', $styleState.implementationCommit, '-EvidenceIds', 'unknown-evidence') -ExpectFailure
+            $afterUnknownEvidence = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8) | ConvertFrom-Json
+            Assert-True ([int]$afterUnknownEvidence.stateRevision -eq [int]$state.stateRevision) 'Unknown review evidence changed state revision.'
+            $null = Invoke-ArenaProcess -Command 'sign-visual-review' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-Style', $styleName, '-Result', 'PASS', '-Reviewer', 'main-agent-smoke', '-CandidateCommit', ('0' * 40), '-EvidenceIds', "shot.$styleName.mobile") -ExpectFailure
+            $afterStaleReview = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8) | ConvertFrom-Json
+            Assert-True ([int]$afterStaleReview.stateRevision -eq [int]$state.stateRevision) 'Stale review signature changed state revision.'
+        }
+
+        $visualEvidence = @("shot.$styleName.mobile", "shot.$styleName.tablet", "shot.$styleName.desktop")
+        $state = Invoke-ArenaProcess -Command 'sign-visual-review' -Additional (@('-ExpectedRevision', [string]$state.stateRevision, '-Style', $styleName, '-Result', 'PASS', '-Reviewer', 'main-agent-smoke', '-CandidateCommit', $styleState.implementationCommit, '-EvidenceIds') + $visualEvidence)
+        $directionEvidence = @("shot.$styleName.desktop", "brief.$styleName")
+        $state = Invoke-ArenaProcess -Command 'sign-direction-review' -Additional (@('-ExpectedRevision', [string]$state.stateRevision, '-Style', $styleName, '-Result', 'PASS', '-Reviewer', 'main-agent-smoke', '-CandidateCommit', $styleState.implementationCommit, '-EvidenceIds') + $directionEvidence)
+        $state = Invoke-ArenaProcess -Command 'qualify' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-Style', $styleName)
+        Assert-True ($state.styles.PSObject.Properties[$styleName].Value.qualification.overall -eq 'PASS') "$styleName did not pass all five qualification gates."
+
+        if ($styleName -eq 'style-a') {
+            $styleState = $state.styles.PSObject.Properties[$styleName].Value
+            Write-TestFile -Path (Join-Path $styleState.worktree 'revision.txt') -Content "candidate revision invalidates prior signatures`n"
+            Invoke-TestGit -Repository $styleState.worktree -Arguments @('add', '--', 'revision.txt') | Out-Null
+            Invoke-TestGit -Repository $styleState.worktree -Arguments @('commit', '-m', 'Revise style-a after qualification') | Out-Null
+            $revisedCommit = (Invoke-TestGit -Repository $styleState.worktree -Arguments @('rev-parse', 'HEAD')).output
+            $state = Invoke-ArenaProcess -Command 'qualify' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-Style', $styleName)
+            $invalidated = $state.styles.PSObject.Properties[$styleName].Value
+            Assert-True ($state.stage -eq 'building' -and $state.status -eq 'blocked') 'Changed candidate did not return to building.'
+            Assert-True ($invalidated.qualification.automatedQa -eq 'PENDING' -and $invalidated.reviews.visual.status -eq 'PENDING' -and $invalidated.reviews.direction.status -eq 'PENDING') 'Changed candidate retained stale QA or review signatures.'
+
+            $revisedBuilder = [IO.File]::ReadAllText($builderPaths[$styleName], [Text.Encoding]::UTF8) | ConvertFrom-Json
+            $revisedBuilder.implementationCommit = $revisedCommit
+            $revisedBuilder.changedFiles = @('style.txt', 'revision.txt')
+            Write-TestJson -Path $builderPaths[$styleName] -Value $revisedBuilder
+            $state = Invoke-ArenaProcess -Command 'import-builder-result' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-ResultPath', $builderPaths[$styleName])
+            $state = Invoke-ArenaProcess -Command 'start-previews' -Additional @('-ExpectedRevision', [string]$state.stateRevision)
+            if ($state.stage -ne 'previews-ready' -and $state.status -eq 'blocked') {
+                $state = Invoke-ArenaProcess -Command 'start-previews' -Additional @('-ExpectedRevision', [string]$state.stateRevision)
+            }
+            Assert-True ($state.stage -eq 'previews-ready') 'Revised candidate previews did not become ready.'
+            $state = Invoke-ArenaProcess -Command 'stop-previews' -Additional @('-ExpectedRevision', [string]$state.stateRevision)
+
+            $revisedQa = New-TestQaResult -ArenaState $state -StyleName $styleName
+            $qaResults[$styleName] = [pscustomobject]@{ path = $qaResults[$styleName].path; result = $revisedQa }
+            Write-TestJson -Path $qaResults[$styleName].path -Value $revisedQa
+            $state = Invoke-ArenaProcess -Command 'import-qa-result' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-ResultPath', $qaResults[$styleName].path)
+            $styleState = $state.styles.PSObject.Properties[$styleName].Value
+            $visualEvidence = @("shot.$styleName.mobile", "shot.$styleName.tablet", "shot.$styleName.desktop")
+            $state = Invoke-ArenaProcess -Command 'sign-visual-review' -Additional (@('-ExpectedRevision', [string]$state.stateRevision, '-Style', $styleName, '-Result', 'PASS', '-Reviewer', 'main-agent-smoke', '-CandidateCommit', $styleState.implementationCommit, '-EvidenceIds') + $visualEvidence)
+            $directionEvidence = @("shot.$styleName.desktop", "brief.$styleName")
+            $state = Invoke-ArenaProcess -Command 'sign-direction-review' -Additional (@('-ExpectedRevision', [string]$state.stateRevision, '-Style', $styleName, '-Result', 'PASS', '-Reviewer', 'main-agent-smoke', '-CandidateCommit', $styleState.implementationCommit, '-EvidenceIds') + $directionEvidence)
+            $state = Invoke-ArenaProcess -Command 'qualify' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-Style', $styleName)
+            Assert-True ($state.styles.PSObject.Properties[$styleName].Value.qualification.overall -eq 'PASS') 'Revised style-a did not requalify through fresh QA and signatures.'
+        }
+    }
+    Assert-True ($state.stage -eq 'selection-ready') 'Three qualified candidates did not enter selection-ready.'
 
     $state = Invoke-ArenaProcess -Command 'select' -Additional @('-ExpectedRevision', [string]$state.stateRevision, '-Style', 'style-a')
     Assert-True ($state.stage -eq 'selected') 'Winner selection was not recorded.'

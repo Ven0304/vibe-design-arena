@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0",
+  "timeoutMs": 10000,
+  "viewports": [
+    {"id": "mobile", "width": 320, "height": 800},
+    {"id": "tablet", "width": 834, "height": 1112},
+    {"id": "desktop", "width": 1440, "height": 1000}
+  ],
+  "evidenceDefinitions": [
+    {"id": "fixture-contract", "kind": "product-contract", "description": "The fixture intentionally has no remote-data or numeric edge states."},
+    {"id": "fixture-brief", "kind": "design-brief", "description": "Fixture direction requires chapter navigation with one active item."}
+  ],
+  "scenarios": [
+    {"id": "primary", "applicability": "required", "route": "/chapter-scrollspy-upward.html", "actions": [], "assertions": [{"id": "fixture.primary.heading", "type": "visibility", "selector": "#chapter-1 h1", "expected": true}]},
+    {"id": "dense", "applicability": "required", "route": "/chapter-scrollspy-upward.html", "actions": [], "assertions": [{"id": "fixture.dense.sections", "type": "count", "selector": "main section", "exact": 3}]},
+    {"id": "loading", "applicability": "not-applicable", "reason": "The static fixture has no asynchronous loading behavior.", "approvedBy": "main-agent-fixture", "evidenceIds": ["fixture-contract"], "actions": [], "assertions": []},
+    {"id": "empty", "applicability": "not-applicable", "reason": "The static fixture has no data collection that can be empty.", "approvedBy": "main-agent-fixture", "evidenceIds": ["fixture-contract"], "actions": [], "assertions": []},
+    {"id": "error", "applicability": "not-applicable", "reason": "The static fixture makes no fallible data request.", "approvedBy": "main-agent-fixture", "evidenceIds": ["fixture-contract"], "actions": [], "assertions": []},
+    {"id": "disabled", "applicability": "not-applicable", "reason": "The fixture has no conditional prerequisites or disabled controls.", "approvedBy": "main-agent-fixture", "evidenceIds": ["fixture-contract"], "actions": [], "assertions": []},
+    {"id": "stale-data", "applicability": "not-applicable", "reason": "The fixture has no remote or time-sensitive data.", "approvedBy": "main-agent-fixture", "evidenceIds": ["fixture-contract"], "actions": [], "assertions": []},
+    {"id": "long-text", "applicability": "not-applicable", "reason": "The fixture validates the scenario engine rather than product content extremes.", "approvedBy": "main-agent-fixture", "evidenceIds": ["fixture-contract"], "actions": [], "assertions": []},
+    {"id": "missing-value", "applicability": "not-applicable", "reason": "The fixture contains no data values.", "approvedBy": "main-agent-fixture", "evidenceIds": ["fixture-contract"], "actions": [], "assertions": []},
+    {"id": "negative-number", "applicability": "not-applicable", "reason": "The fixture contains no numeric values.", "approvedBy": "main-agent-fixture", "evidenceIds": ["fixture-contract"], "actions": [], "assertions": []},
+    {"id": "extreme-number", "applicability": "not-applicable", "reason": "The fixture contains no numeric values.", "approvedBy": "main-agent-fixture", "evidenceIds": ["fixture-contract"], "actions": [], "assertions": []},
+    {"id": "touch-targets", "applicability": "required", "route": "/chapter-scrollspy-upward.html", "actions": [], "assertions": [{"id": "fixture.touch.nav", "type": "bounding-box", "selector": "nav a", "minWidth": 44, "minHeight": 44}]},
+    {"id": "container-overflow", "applicability": "not-applicable", "reason": "The fixture has no local scrolling data container.", "approvedBy": "main-agent-fixture", "evidenceIds": ["fixture-contract"], "actions": [], "assertions": []},
+    {"id": "keyboard-traversal", "applicability": "required", "route": "/chapter-scrollspy-upward.html", "actions": [{"type": "keyboard", "keys": ["Tab"]}], "assertions": [{"id": "fixture.keyboard.first-link", "type": "focus", "selector": "nav a[href='#chapter-1']", "visibleIndicator": true}]},
+    {"id": "focus-visibility", "applicability": "required", "route": "/chapter-scrollspy-upward.html", "actions": [{"type": "keyboard", "keys": ["Tab"]}], "assertions": [{"id": "fixture.focus.visible", "type": "focus", "selector": "nav a[href='#chapter-1']", "visibleIndicator": true}]},
+    {"id": "focus-return", "applicability": "required", "route": "/chapter-scrollspy-upward.html", "actions": [{"type": "click", "selector": "#open"}, {"type": "keyboard", "keys": ["Escape"]}], "assertions": [{"id": "fixture.focus.return", "type": "focus", "selector": "#open", "visibleIndicator": true}]},
+    {"id": "reduced-motion", "applicability": "required", "route": "/chapter-scrollspy-upward.html", "actions": [{"type": "reduced-motion", "value": "reduce"}, {"type": "scroll", "selector": "#chapter-2", "block": "start"}], "assertions": [{"id": "fixture.motion.content", "type": "visibility", "selector": "#chapter-2 h2", "expected": true}]},
+    {"id": "rapid-toggle", "applicability": "required", "route": "/chapter-scrollspy-upward.html", "actions": [{"type": "click", "selector": "#toggle", "repeat": 2}], "assertions": [{"id": "fixture.toggle.stable", "type": "attribute", "selector": "#toggle", "name": "data-state", "expected": "closed"}]},
+    {"id": "equivalent-200-percent-layout", "applicability": "required", "mode": "equivalent-200-percent-layout", "route": "/chapter-scrollspy-upward.html", "actions": [], "assertions": [{"id": "fixture.proxy.primary-visible", "type": "visibility", "selector": "#chapter-1 h1", "expected": true}]},
+    {"id": "chapter-scrollspy-upward", "applicability": "applicable", "route": "/chapter-scrollspy-upward.html", "actions": [{"type": "scroll", "selector": "#chapter-3", "block": "start"}, {"type": "wait", "ms": 100}, {"type": "scroll", "selector": "#chapter-2", "block": "start"}, {"type": "wait", "ms": 100}], "assertions": [{"id": "fixture.scrollspy.hash", "type": "hash", "expected": "#chapter-2"}, {"id": "fixture.scrollspy.position", "type": "bounding-box", "selector": "#chapter-2", "topMin": -1, "topMax": 1}, {"id": "fixture.scrollspy.current", "type": "aria-current", "selector": "nav a", "value": "location", "exactCount": 1}]}
+  ]
+}

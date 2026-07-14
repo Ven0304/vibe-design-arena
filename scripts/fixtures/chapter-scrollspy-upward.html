@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter scrollspy upward fixture</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root { color-scheme: light; font: 16px/1.5 system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #172033; background: #f7f8fb; }
+    nav { position: fixed; inset: 0 auto 0 0; width: 15rem; padding: 1rem; background: #fff; border-right: 1px solid #ccd2dc; }
+    nav a, button { display: flex; min-width: 44px; min-height: 44px; align-items: center; padding: .6rem .8rem; color: #233a70; border-radius: .35rem; }
+    nav a[aria-current="location"] { color: #fff; background: #234a91; }
+    a:focus-visible, button:focus-visible { outline: 3px solid #d54800; outline-offset: 2px; }
+    main { margin-left: 15rem; max-width: 52rem; padding: 2rem 3rem; }
+    section { min-height: 920px; padding: 1rem 0; border-bottom: 1px solid #ccd2dc; }
+    dialog { border: 1px solid #33486e; border-radius: .5rem; }
+    @media (max-width: 760px) { nav { position: sticky; width: 100%; height: auto; display: flex; overflow-x: auto; border-right: 0; border-bottom: 1px solid #ccd2dc; } nav a { flex: 0 0 auto; } main { margin-left: 0; padding: 1rem; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .001ms !important; } }
+  </style>
+</head>
+<body>
+  <nav aria-label="Chapters">
+    <a href="#chapter-1" aria-current="location">Chapter 1</a>
+    <a href="#chapter-2">Chapter 2</a>
+    <a href="#chapter-3">Chapter 3</a>
+  </nav>
+  <main>
+    <button id="open" type="button">Open details</button>
+    <button id="toggle" type="button" data-state="closed">Toggle twice</button>
+    <dialog id="details" aria-labelledby="dialog-title"><h2 id="dialog-title">Details</h2><button id="close" type="button">Close</button></dialog>
+    <section id="chapter-1" tabindex="-1"><h1>Chapter 1</h1><p>Primary fixture content.</p></section>
+    <section id="chapter-2" tabindex="-1"><h2>Chapter 2</h2><p>Upward-scroll target content.</p></section>
+    <section id="chapter-3" tabindex="-1"><h2>Chapter 3</h2><p>Lower chapter content.</p></section>
+  </main>
+  <script>
+    const links = [...document.querySelectorAll('nav a')];
+    const sections = [...document.querySelectorAll('main section')];
+    function updateCurrent() {
+      const marker = window.scrollY + Math.min(window.innerHeight * 0.35, 280);
+      let current = sections[0];
+      for (const section of sections) if (section.offsetTop <= marker) current = section;
+      for (const link of links) {
+        if (link.hash === `#${current.id}`) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      }
+      history.replaceState(null, '', `#${current.id}`);
+    }
+    addEventListener('scroll', updateCurrent, { passive: true });
+    addEventListener('load', updateCurrent);
+    document.querySelector('#toggle').addEventListener('click', (event) => {
+      event.currentTarget.dataset.state = event.currentTarget.dataset.state === 'closed' ? 'open' : 'closed';
+    });
+    const dialog = document.querySelector('#details');
+    const opener = document.querySelector('#open');
+    opener.addEventListener('click', () => dialog.showModal());
+    dialog.addEventListener('close', () => opener.focus());
+    dialog.addEventListener('cancel', () => { dialog.close(); opener.focus(); });
+    document.querySelector('#close').addEventListener('click', () => { dialog.close(); opener.focus(); });
+  </script>
+</body>
+</html>
