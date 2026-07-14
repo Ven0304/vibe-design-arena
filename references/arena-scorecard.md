@@ -6,9 +6,9 @@ This file answers one question only: **is this implementation qualified to enter
 
 It does not answer which direction is better. Do not assign points, weights, percentages, stars, letter grades, or ranks. Do not average failures into a total. Aesthetic judgment belongs entirely to the user after all three complete alternatives are shown.
 
-Evaluate each item as `PASS` or `FAIL`. If a state or requirement truly cannot occur in the product, mark it `PASS` only after recording the product reason; do not create a third score category.
+Evaluate every executed item as `PASS` or `FAIL`. When a state or requirement truly cannot occur, record `NOT-APPLICABLE` only with a concrete `reason`, `approvedBy`, and `evidenceIds`. A valid N/A declaration is excluded from the executed pass/fail count; an inferred, undocumented, or unevidenced N/A is `FAIL`.
 
-The builder produces a preliminary self-check. The main agent is the final qualification and evidence owner in Stage 4.5. Missing rendered evidence is `FAIL`, and a candidate with any failed item is not qualified to enter Stage 5.
+The builder produces a preliminary self-check. The main agent is the final qualification and evidence owner during rendered review. Missing rendered evidence is `FAIL`, and a candidate with any failed item is not qualified to enter the user selection view.
 
 ## Candidate Record
 
@@ -76,25 +76,27 @@ Use `interaction-quality-bar.md` as the source of truth. Do not duplicate its du
 ## Qualification Result
 
 ```text
-BRIEF INTEGRITY: PASS / FAIL
-BRIEF CONSISTENCY: PASS / FAIL
-VISUAL BASELINE: PASS / FAIL
-INTERACTION BASELINE: PASS / FAIL
+briefIntegrity: PASS / FAIL
+validation: PASS / FAIL
+automatedQa: PASS / FAIL / BLOCKED
+mainAgentVisualReview: PASS / FAIL
+directionConsistencyReview: PASS / FAIL
 OVERALL QUALIFICATION: PASS / FAIL
 
 Failed item IDs:
 Evidence-bundle location and route for each failure:
+N/A declarations with reason, approvedBy, and evidenceIds:
 Fix attempted:
 Retest result:
 Remaining discrepancy observed by main agent:
 ```
 
-`OVERALL QUALIFICATION` is `PASS` only when every applicable item passes. One failed item makes the overall result `FAIL`; there is no score to carry forward and no stronger category that can compensate for it.
+`OVERALL QUALIFICATION` is `PASS` only when every executed item passes, every N/A declaration is valid, and all five Arena qualification gates are `PASS`. One failed item makes the overall result `FAIL`; there is no score to carry forward and no stronger category that can compensate for it.
 
-## Failure Handling and Stage 5 Gate
+## Failure Handling and User Selection Gate
 
 Return every failed item and its evidence to the same builder or a replacement builder for correction. After each fix, re-run validation, brief-integrity checks, preview or evidence capture, and the affected scorecard items. Preserve the builder's preliminary result and record the main agent's retest separately.
 
-If an item still fails, do not present the user-selection comparison. The available outcomes are to fix the environment and retry, assign a replacement builder and retry that style, or cancel the entire Arena. Do not skip, hide, or remove a candidate to reach Stage 5.
+If an item still fails, do not present the user-selection comparison. The available outcomes are to fix the environment and retry, assign a replacement builder and retry that style, or cancel the entire Arena. Do not skip, hide, or remove a candidate to reach user selection.
 
-All three alternatives enter Stage 5 only after all three have complete evidence bundles and `OVERALL QUALIFICATION: PASS`. The gate establishes eligibility only; after qualification, the user retains the complete aesthetic choice without scores or rankings.
+All three alternatives enter the user selection view only after all three have complete evidence bundles and `OVERALL QUALIFICATION: PASS`. The gate establishes eligibility only; after qualification, the user retains the complete aesthetic choice without scores or rankings.

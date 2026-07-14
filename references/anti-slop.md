@@ -1,6 +1,6 @@
 # Anti-Slop: Default Pattern Challenge
 
-Use this file while drafting all three Stage 1 directions and again within each builder's assigned direction. Its purpose is to expose automatic visual habits before they harden into code.
+Use this file while drafting all three directions and again within each builder's assigned direction. Its purpose is to expose automatic visual habits before they harden into code.
 ## Contents
 
 - [Operating principle](#operating-principle)
@@ -87,7 +87,7 @@ For each pair of directions, compare:
 
 At least three must differ observably. If the same wireframe can accept all three token sets, the logics are not different enough. If all three could be built by changing CSS variables on one component tree, rewrite the briefs.
 
-Do not ask individual builders to rejudge the arena-wide rotation. The main agent completes that decision once in Stage 1. A builder uses this file only to keep the assigned logic from drifting back toward defaults.
+Do not ask individual builders to rejudge the arena-wide rotation. The main agent completes that decision once during direction drafting. A builder uses this file only to keep the assigned logic from drifting back toward defaults.
 
 ## Required Three-Line Record
 

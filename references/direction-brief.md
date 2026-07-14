@@ -1,6 +1,6 @@
 # Direction Brief Standard
 
-Use this file in Stage 1, before any worktree is created. A direction brief is a design contract, not a mood-board caption. It must tell a builder what to emphasize, what to reject, and what observable result would prove the direction was implemented.
+Use this file during direction drafting, before any worktree is created. A direction brief is a design contract, not a mood-board caption. It must tell a builder what to emphasize, what to reject, and what observable result would prove the direction was implemented.
 
 ## Contents
 
@@ -222,7 +222,7 @@ Use this as the complete file structure for every candidate. Sections may be exp
 - Approval record: <style row or durable record identifier in the external approval registry>
 - Hash algorithm: SHA-256 over the exact UTF-8 file bytes
 - Approved whole-file SHA-256: <stored in the external Arena registry and Candidate Record; do not write the digest value back into this file>
-- Brief commit record: <absolute ARENA_RUN_ROOT/candidates/style-<a/b/c>-record.md path; the commit value is added there after Stage 2 materialization>
+- Brief commit record: <absolute ARENA_RUN_ROOT/candidates/style-<a/b/c>-record.md path; the commit value is added there after worktree materialization>
 - Reference snapshot ID: <frozen Arena snapshot ID>
 - Reference manifest: <absolute ARENA_RUN_ROOT/reference-manifest.txt path>
 - Absolute SKILL_ROOT: <absolute path recorded by the main agent>
