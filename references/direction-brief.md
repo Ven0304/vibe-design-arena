@@ -140,6 +140,7 @@ color:
   muted: "#...... — metadata and secondary evidence"
   accent: "#...... — interaction/current selection only"
   signal: "#...... — one domain-specific emphasis, if needed"
+  status: "semantic success/warning/error/stale roles and ramps, if applicable"
 
 type:
   display: "family/fallback — role, weights, intended sizes"
@@ -151,6 +152,7 @@ layout:
   concept: "one sentence describing the layout grammar"
   wireframe: "reference the ASCII wireframe above"
   density: "where the interface is compact and where it breathes"
+  narrow: "how task priority and structure transform on narrow screens"
 
 spacing:
   scale: "name a limited progression, for example space-1/2/3/4/6/8"
@@ -164,9 +166,11 @@ motion:
   duration: "name roles such as instant/fast/panel rather than scattered milliseconds"
   easing: "name enter/exit/move curves"
   distance: "name the maximum translation roles, if movement is justified"
+  static: "name states that deliberately do not animate"
+  reduced: "name the reduced-motion replacement behavior"
 ```
 
-Use four to six semantic colors in the brief. A domain may later require fuller ramps, but the brief must first make each color's responsibility unambiguous. At least display and body type roles are required; add data/utility only when the content needs it.
+Use four to six core semantic colors in the brief, plus explicit status ramps when applicable. A domain may later require fuller ramps, but the brief must first make each color's responsibility unambiguous. At least display and body type roles are required; add data/utility only when the content needs it.
 
 Reject the token summary if:
 
@@ -214,11 +218,13 @@ Use this as the complete file structure for every candidate. Sections may be exp
 
 ## Approval And Integrity Metadata
 - Style: <A/B/C>
-- Approval status: <pending until the user confirms this exact complete file>
-- Approval record: <date, turn, or durable external record>
+- Approval authority: <absolute ARENA_RUN_ROOT/approval-registry.md path; approval exists only when this exact file hash appears there>
+- Approval record: <style row or durable record identifier in the external approval registry>
 - Hash algorithm: SHA-256 over the exact UTF-8 file bytes
 - Approved whole-file SHA-256: <stored in the external Arena registry and Candidate Record; do not write the digest value back into this file>
+- Brief commit record: <absolute ARENA_RUN_ROOT/candidates/style-<a/b/c>-record.md path; the commit value is added there after Stage 2 materialization>
 - Reference snapshot ID: <frozen Arena snapshot ID>
+- Reference manifest: <absolute ARENA_RUN_ROOT/reference-manifest.txt path>
 - Absolute SKILL_ROOT: <absolute path recorded by the main agent>
 - Skill provenance: <Skill commit, NO-GIT/HASHED, or DIRTY-GIT/HASHED>
 
@@ -272,20 +278,33 @@ Use this as the complete file structure for every candidate. Sections may be exp
 color:
   canvas: <role and value>
   surface: <role and value>
-  text: <role and value>
+  ink: <role and value>
   muted: <role and value>
   accent: <role and value>
-  status: <success/warning/error/stale roles and values>
+  signal: <one bounded domain-specific emphasis, if needed>
+  status: <semantic success/warning/error/stale roles and ramps, if applicable>
 type:
-  display: <family, weight, size, line-height, role>
-  body: <family, weight, size, line-height, role>
-  data: <family, weight, size, line-height, role>
+  display: <family/fallback, role, weights, intended sizes>
+  body: <family/fallback, reading or UI role, weights>
+  data: <optional family or numeric feature and exact use>
+  scale: <named levels such as display/page/section/body/meta>
 layout:
-  shell: <max width, columns, rails, or reading measure>
-  narrow: <responsive transformation>
-spacing: <base unit and named rhythm>
-radius: <named values and where each is allowed>
-motion: <duration/easing by state, deliberately static states, reduced-motion behavior>
+  concept: <one-sentence layout grammar>
+  wireframe: <reference the ASCII wireframe above>
+  density: <where the interface is compact and where it breathes>
+  narrow: <how task priority and structure transform on narrow screens>
+spacing:
+  scale: <limited named progression>
+  rule: <within-group versus between-group usage>
+radius:
+  scale: <active named radii>
+  rule: <which component types may use each radius>
+motion:
+  duration: <named instant/fast/panel roles>
+  easing: <named enter/exit/move curves>
+  distance: <maximum justified translation roles>
+  static: <states that deliberately do not animate>
+  reduced: <reduced-motion replacement behavior>
 ```
 
 ## Replaceability Test

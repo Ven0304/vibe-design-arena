@@ -19,9 +19,41 @@ Do not support mixing elements across alternatives. The user chooses one complet
 - Keep the three alternatives isolated in separate linked worktrees and branches.
 - Retain every unselected style branch after the arena. Cleanup removes linked worktrees, not the losing branches.
 
+## Stage 0: Create The Arena Run Record
+
+Start in the product repository, or ask for the repo path if it is unclear. Before product inspection, reference reading, or brief drafting, create one durable Arena run directory outside the product repository and all style worktrees. Use an absolute, user-writable path and record it as `ARENA_RUN_ROOT`. A suggested cross-project location is a user-owned `.vibe-design-arena/runs/<arena-id>` directory; adapt the parent directory to the available writable workspace and record the resolved absolute path.
+
+Use one unique `<arena-id>` for the whole run. Create this structure under `ARENA_RUN_ROOT`:
+
+```text
+ARENA_RUN_ROOT/
+|-- arena-record.md
+|-- arena-preface.md
+|-- reference-manifest.txt
+|-- approval-registry.md
+|-- preview-registry.md
+|-- briefs/
+|   |-- style-a/DESIGN_BRIEF.md
+|   |-- style-b/DESIGN_BRIEF.md
+|   `-- style-c/DESIGN_BRIEF.md
+|-- candidates/
+|   |-- style-a-record.md
+|   |-- style-b-record.md
+|   `-- style-c-record.md
+|-- evidence/
+|   |-- style-a/
+|   |-- style-b/
+|   `-- style-c/
+`-- final-report.md
+```
+
+Write the product repository's absolute path, arena ID, creation time, current stage, and status to `arena-record.md`. Update the current stage and status as the Arena advances. These files are operational records, not product artifacts: do not commit them to the product repository or any style branch.
+
+If `ARENA_RUN_ROOT` cannot be created or is not durable for the expected Arena duration, stop and choose another writable location before Stage 1. Do not fall back to chat history, an unrecorded temporary directory, or a style worktree as the only copy of run state.
+
 ## Stage 1: Inspect The Product And Propose Directions
 
-Start in the product repository, or ask for the repo path if it is unclear.
+Use the product repository and `ARENA_RUN_ROOT` established in Stage 0.
 
 ### Freeze The Skill And Reference Snapshot
 
@@ -57,7 +89,7 @@ git -C $skillRoot status --short -- SKILL.md references
 
 Record the commit as provenance only when available. If Git is unavailable, or if any consumed file is untracked or differs from that commit, label the provenance `NO-GIT/HASHED` or `DIRTY-GIT/HASHED`. In every mode, SHA-256 hashes are the authoritative content lock.
 
-Create one Arena-level reference snapshot manifest before drafting. Include:
+Create one Arena-level reference snapshot manifest at the absolute path `$ARENA_RUN_ROOT/reference-manifest.txt` before drafting. Include:
 
 ```text
 Reference snapshot ID:
@@ -282,7 +314,7 @@ Do not create worktrees or dispatch builders until this reading and brief-writin
 
 Draft each direction with all seven elements and the token summary required by `direction-brief.md`, calibrated by the matching domain pack and differentiated through the design-logic rotation in `anti-slop.md`. Apply the rewrite criteria to the three briefs as a set and rewrite any failed set before presentation.
 
-Then prepare a concise shared "Arena Preface" to place immediately before the three full `DESIGN_BRIEF.md` files in Stage 1.5:
+Then prepare a concise shared "Arena Preface", save its exact current contents to `$ARENA_RUN_ROOT/arena-preface.md`, and place it immediately before the three full `DESIGN_BRIEF.md` files in Stage 1.5:
 
 - Product snapshot: what the product does, who uses it, and which screens matter most.
 - Technical snapshot: framework, install command, dev command, build/test commands, likely preview ports, required environment variables, local services or mock backends, and any setup, codegen, or build-before-dev steps.
@@ -293,7 +325,7 @@ The Arena Preface is shared context, not a separate approval artifact. Do not as
 
 ## Stage 1.5: Generate And Show Three `DESIGN_BRIEF.md` Drafts
 
-Before the single design-confirmation point, the main agent must generate three complete Markdown artifacts, each named `DESIGN_BRIEF.md` and labeled clearly in the presentation as Style A, Style B, or Style C. At this stage they may be held by the main agent as drafts, but they are the exact candidate files that will be materialized in the three worktrees after approval.
+Before the single design-confirmation point, the main agent must generate three complete Markdown artifacts, each named `DESIGN_BRIEF.md` and labeled clearly in the presentation as Style A, Style B, or Style C. Save their exact UTF-8 bytes at `$ARENA_RUN_ROOT/briefs/style-a/DESIGN_BRIEF.md`, `$ARENA_RUN_ROOT/briefs/style-b/DESIGN_BRIEF.md`, and `$ARENA_RUN_ROOT/briefs/style-c/DESIGN_BRIEF.md`. These are the exact candidate files that will be materialized in the three worktrees after approval.
 
 Build every file from the complete ready-to-use template in the frozen `direction-brief.md`. Every `DESIGN_BRIEF.md` must contain:
 
@@ -318,13 +350,13 @@ Before final confirmation, resolve any conflict between the completed seven brie
 
 Ask the user to confirm, replace, or adjust the three complete files. Do not create worktrees or enter Stage 2 until the user explicitly confirms them. Preserve the exact approved contents for Stage 2; do not silently regenerate or rewrite them after approval.
 
-At final confirmation, compute and record a separate SHA-256 for the exact UTF-8 bytes of each approved `DESIGN_BRIEF.md`. Store an approval registry before Stage 2:
+At final confirmation, compute and record a separate SHA-256 for the exact UTF-8 bytes of each approved `DESIGN_BRIEF.md`. Store the approval registry at `$ARENA_RUN_ROOT/approval-registry.md` before Stage 2:
 
 ```text
 style | approved brief SHA-256 | approval date or turn | reference snapshot ID
 ```
 
-Line endings and encoding are part of the protected bytes. Later materialization must reproduce the exact approved file, not a visually equivalent rewrite. Do not write the resulting hash back into `DESIGN_BRIEF.md`: changing the file to insert its own hash would change the whole-file hash. Keep the final value in the external approval registry and Candidate Record.
+Line endings and encoding are part of the protected bytes. Later materialization must copy the exact approved file from `ARENA_RUN_ROOT`, not reconstruct a visually equivalent rewrite from chat. Do not write the resulting hash back into `DESIGN_BRIEF.md`: changing the file to insert its own hash would change the whole-file hash. Keep the final value in the approval registry and Candidate Record.
 
 ## Stage 2: Create Three Worktrees From One Common Ancestor
 
@@ -507,7 +539,7 @@ If repository-internal worktree creation fails because of sandbox permission den
 
 ### Materialize And Commit The Approved `DESIGN_BRIEF.md` Files
 
-After all three worktrees exist and before dispatching any builder, write the exact user-approved Style A, Style B, and Style C drafts to the root of their corresponding worktrees:
+After all three worktrees exist and before dispatching any builder, copy the exact user-approved Style A, Style B, and Style C files from the frozen copies under `ARENA_RUN_ROOT/briefs/` to the root of their corresponding worktrees:
 
 - Style A: `<style-a-worktree>/DESIGN_BRIEF.md`
 - Style B: `<style-b-worktree>/DESIGN_BRIEF.md`
@@ -578,6 +610,8 @@ $briefCommitA = git -C $styleAWorktree rev-parse HEAD
 $briefCommitB = git -C $styleBWorktree rev-parse HEAD
 $briefCommitC = git -C $styleCWorktree rev-parse HEAD
 ```
+
+Write each brief commit, approved brief SHA-256, branch, worktree path, reference snapshot ID, and approval-registry path to that style's `$ARENA_RUN_ROOT/candidates/style-<a/b/c>-record.md`.
 
 For each worktree, verify that `DESIGN_BRIEF.md` is tracked, its whole-file SHA-256 still equals the approved value, the recorded brief commit exists on the expected branch, and the worktree is clean before dispatch. If writing, verification, or commit fails for any style, stop and repair that style's branch before dispatching builders; do not let one builder begin without its committed brief.
 
@@ -711,7 +745,7 @@ npm run dev -- -p 3001
 pnpm dev --host 127.0.0.1 --port 5174
 ```
 
-Record a preview registry:
+Record the preview registry at `$ARENA_RUN_ROOT/preview-registry.md`:
 
 ```text
 style | branch | worktree path (`.worktrees/...` or confirmed fallback) | port | command | process id/session id | log path
@@ -813,7 +847,7 @@ Only stop preview servers that the main agent started and recorded. Do not kill 
 
 The main agent is the final evidence owner. Builder scorecards are preliminary self-checks only. Before reading any quality reference, the main agent must verify its absolute path and SHA-256 against the frozen Arena manifest. The main agent must then complete every rendered check required by the frozen `visual-quality-bar.md`, `interaction-quality-bar.md`, and `arena-scorecard.md`; lightweight sampling is not a substitute.
 
-Create one evidence bundle per candidate. Record a bundle path or artifact identifiers outside the product branch unless the user explicitly asks to track evidence files. Each bundle must include:
+Create one evidence bundle per candidate under `$ARENA_RUN_ROOT/evidence/style-<a/b/c>/`. Update the matching `$ARENA_RUN_ROOT/candidates/style-<a/b/c>-record.md` with its evidence index, builder preliminary result, main-agent qualification, validation history, and retest history. Each bundle must include:
 
 - style, branch, implementation commit, brief commit, approved brief SHA-256, reference snapshot ID, absolute `SKILL_ROOT`, Skill commit or hashed provenance, and the supplied manifest entries;
 - route and viewport for every capture, including `320px`, a medium or tablet width, and a wide desktop width;
@@ -1133,8 +1167,9 @@ git status --short
 
 ## Final Report
 
-End with:
+Write the final report to `$ARENA_RUN_ROOT/final-report.md`, then present the same outcome to the user. End with:
 
+- Arena ID and absolute `ARENA_RUN_ROOT`.
 - Selected style and branch.
 - Selected brief commit and approved brief SHA-256.
 - Frozen reference snapshot ID, absolute SKILL_ROOT, Skill commit or hashed provenance, and manifest location.

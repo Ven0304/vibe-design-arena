@@ -18,6 +18,10 @@ Branch:
 Implementation commit:
 Brief commit:
 Brief SHA-256:
+Arena ID:
+Absolute ARENA_RUN_ROOT:
+Candidate Record path:
+Approval registry path:
 Reference snapshot ID:
 Absolute SKILL_ROOT:
 Skill commit or hashed provenance:
@@ -29,6 +33,8 @@ Main-agent final review date:
 Validation commands:
 Retest history:
 ```
+
+The builder returns its preliminary record to the main agent without receiving `ARENA_RUN_ROOT`. The main agent saves the completed record at `$ARENA_RUN_ROOT/candidates/style-<a/b/c>-record.md` and stores rendered evidence under the matching `$ARENA_RUN_ROOT/evidence/style-<a/b/c>/` directory. Do not rely on chat history as the only copy of the preliminary scorecard, final qualification, validation results, or retest history.
 
 Before any scorecard read or final qualification, recompute each supplied reference hash and compare it with the frozen manifest. A missing path, changed path, changed hash, or changed snapshot ID is `FAIL`; do not silently qualify against a newer Skill version.
 
