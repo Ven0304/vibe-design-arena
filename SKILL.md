@@ -222,7 +222,11 @@ This is the highest-weight and highest-leverage stage in the entire workflow. Do
 Before drafting any direction, the main agent must read the complete original text of:
 
 - [`references/direction-brief.md`](references/direction-brief.md), which defines the seven required brief elements, the token summary format, and the conditions that make all three briefs unqualified and require a rewrite.
-- The matching product-type calibration file under [`references/domain-packs/*.md`](references/domain-packs/), which supplies an evidence-based starting point for drafting briefs in that domain, such as a finance-data product.
+- When the product matches a domain pack, the main agent must read the complete original text of every content file in that domain pack folder before drafting any brief:
+  - `shared-judgments.md` for judgments shared across all three candidates;
+  - all three files under `directions/`, one source for each candidate;
+  - `orthogonality-check.md` for the main agent's cross-direction comparison and pairwise rejection check.
+  Use the reusable folder contract in [`references/domain-packs/README.md`](references/domain-packs/README.md). The main agent uses the complete pack to draft the three briefs and must apply the main-agent-only check to verify that the resulting set is genuinely orthogonal.
 - [`references/anti-slop.md`](references/anti-slop.md), which identifies default AI-design traps and requires the three directions to rotate across different design logics.
 
 Do not create worktrees or dispatch builders until this reading and brief-writing gate is complete. The main agent owns the one-time arena-level judgment that the three directions are sufficiently orthogonal.
@@ -235,7 +239,26 @@ Prepare a concise "Arena Brief" for user confirmation:
 - Draft each direction with all seven elements and the token summary required by `references/direction-brief.md`, calibrated by the matching domain pack and differentiated through the design-logic rotation in `references/anti-slop.md`.
 - Apply the rewrite criteria in `references/direction-brief.md` to the three briefs as a set. If they fail, rewrite them before asking for user confirmation.
 
-Ask the user to confirm, replace, or adjust the three directions. Do not create worktrees until they confirm.
+## Stage 1.5: Generate And Show Three `DESIGN_BRIEF.md` Drafts
+
+Before asking the user to confirm the directions, the main agent must generate three complete Markdown artifacts, each named `DESIGN_BRIEF.md` and labeled clearly in the presentation as Style A, Style B, or Style C. At this stage they may be held by the main agent as drafts, but they are the exact candidate files that will be materialized in the three worktrees after approval.
+
+Every `DESIGN_BRIEF.md` must contain:
+
+- The completed seven required brief elements from `references/direction-brief.md` for that style.
+- The required token summary and replaceability test so the artifact is implementation-ready rather than only a concept note.
+- The product and technical constraints that the assigned builder must preserve.
+- When a domain pack matches, a dedicated `Domain Direction Source — Complete Verbatim Copy` section containing the entire original text of that style's matching source file under `directions/`.
+
+For the domain direction source, copy the whole file exactly. Preserve every heading, paragraph, list item, warning, and boundary note in its original order. Do not excerpt selected sentences, summarize it, paraphrase it, compress it, or replace it with a link. The copied block must be complete enough to compare line-for-line with the source file. Style A receives only the complete A source, Style B only the complete B source, and Style C only the complete C source.
+
+If no domain pack matches, all three `DESIGN_BRIEF.md` files must still exist and contain at least the completed seven brief elements, token summary, replaceability test, and product constraints.
+
+Use the shared judgments while drafting and use the main-agent-only comparison file to test the three drafts as a set. If the three files fail the orthogonality or rewrite criteria, revise them before presentation.
+
+Present the full contents of all three `DESIGN_BRIEF.md` drafts to the user before asking for confirmation. A summary, abbreviated preview, diff, or table is not a substitute for showing the three complete files. After any requested revision, show the full current contents of all three files again before asking for final confirmation.
+
+Ask the user to confirm, replace, or adjust the three complete files. Do not create worktrees or enter Stage 2 until the user explicitly confirms them. Preserve the exact approved contents for Stage 2; do not silently regenerate or rewrite them after approval.
 
 ## Stage 2: Create Three Worktrees From One Common Ancestor
 
@@ -368,6 +391,46 @@ git worktree list
 
 If repository-internal worktree creation fails because of sandbox permission denial or another write failure, stop immediately. Tell the user: `repository-internal worktree path is not writable: <exact error>`. Then propose one concrete repository-external writable directory, such as an adjacent `vibe-design-arena` directory or another user-approved workspace path, and wait for the user to confirm that fallback path before creating any worktrees there. Do not silently choose a temporary directory or any repository-external path.
 
+### Materialize And Commit The Approved `DESIGN_BRIEF.md` Files
+
+After all three worktrees exist and before dispatching any builder, write the exact user-approved Style A, Style B, and Style C drafts to the root of their corresponding worktrees:
+
+- Style A: `<style-a-worktree>/DESIGN_BRIEF.md`
+- Style B: `<style-b-worktree>/DESIGN_BRIEF.md`
+- Style C: `<style-c-worktree>/DESIGN_BRIEF.md`
+
+Do not regenerate, summarize, paraphrase, or otherwise revise the approved contents while materializing them. If a domain pack was used, verify before commit that the embedded `Domain Direction Source — Complete Verbatim Copy` block in each file still matches its corresponding source under `directions/` line-for-line and contains the entire source file.
+
+Commit each `DESIGN_BRIEF.md` on its own style branch before Stage 3 so the brief is part of that branch, not a temporary file retained only by the main agent.
+
+Bash:
+
+```bash
+git -C "$STYLE_A_WORKTREE" add DESIGN_BRIEF.md
+git -C "$STYLE_A_WORKTREE" commit -m "Add approved Vibe Design Arena brief for style A"
+
+git -C "$STYLE_B_WORKTREE" add DESIGN_BRIEF.md
+git -C "$STYLE_B_WORKTREE" commit -m "Add approved Vibe Design Arena brief for style B"
+
+git -C "$STYLE_C_WORKTREE" add DESIGN_BRIEF.md
+git -C "$STYLE_C_WORKTREE" commit -m "Add approved Vibe Design Arena brief for style C"
+```
+
+PowerShell equivalent:
+
+```powershell
+git -C $styleAWorktree add DESIGN_BRIEF.md
+git -C $styleAWorktree commit -m "Add approved Vibe Design Arena brief for style A"
+
+git -C $styleBWorktree add DESIGN_BRIEF.md
+git -C $styleBWorktree commit -m "Add approved Vibe Design Arena brief for style B"
+
+git -C $styleCWorktree add DESIGN_BRIEF.md
+git -C $styleCWorktree commit -m "Add approved Vibe Design Arena brief for style C"
+```
+
+For each worktree, verify that `DESIGN_BRIEF.md` is tracked, the brief commit exists on the expected branch, and the worktree is clean before dispatch. If writing, verification, or commit fails for any style, stop and repair that style's branch before dispatching builders; do not let one builder begin without its committed brief.
+
 Use one common ancestor because:
 
 - The user compares three redesigns of the same product version.
@@ -378,7 +441,7 @@ Use one common ancestor because:
 
 ## Stage 3: Dispatch Parallel Builders
 
-Use sub-agents or dispatch when available. Give each builder only its own worktree path and its assigned style brief.
+Use sub-agents or dispatch when available. Give each builder only its own worktree path. Its approved, committed style brief is the `DESIGN_BRIEF.md` file at that worktree's root.
 
 Each builder works in one isolated worktree:
 
@@ -388,27 +451,33 @@ Each builder works in one isolated worktree:
 
 Isolation works because every linked worktree has its own working directory, index, and checked-out branch `HEAD`. The builders share Git history but do not write to the same files on disk.
 
-For each builder, provide:
+For each builder, the dispatch must provide:
 
+- The exact assigned worktree path and branch.
 - The product snapshot and technical snapshot.
-- The assigned style direction.
+- An explicit instruction to read the complete `DESIGN_BRIEF.md` at the assigned worktree root before implementing. This file always exists and contains at least the approved seven brief elements; when domain calibration applies, it also contains that style's complete verbatim direction source already embedded by the main agent.
+- When a domain pack matches, the exact path to `references/domain-packs/<domain-pack>/shared-judgments.md` and an instruction to read it completely.
 - The screens and flows to prioritize.
-- An explicit instruction to locate this `vibe-design-arena` skill and personally read the complete original text of [`references/anti-slop.md`](references/anti-slop.md), [`references/visual-quality-bar.md`](references/visual-quality-bar.md), [`references/interaction-quality-bar.md`](references/interaction-quality-bar.md), and [`references/arena-scorecard.md`](references/arena-scorecard.md) before implementing. The main agent must not paraphrase, condense, or substitute excerpts for these files in the dispatch prompt.
-- A requirement to use `references/anti-slop.md` within the assigned direction, while leaving the one-time judgment about whether all three directions are orthogonal to the main agent's completed Stage 1 work.
-- A requirement to self-check the finished implementation against `references/visual-quality-bar.md` and `references/interaction-quality-bar.md`, verify that the assigned brief's signature element and anti-default are present in the code, then report pass/fail against every applicable gate in `references/arena-scorecard.md`.
+- The exact paths to the four universal references—[`references/anti-slop.md`](references/anti-slop.md), [`references/visual-quality-bar.md`](references/visual-quality-bar.md), [`references/interaction-quality-bar.md`](references/interaction-quality-bar.md), and [`references/arena-scorecard.md`](references/arena-scorecard.md)—and an instruction to read their complete original text before implementing. The main agent must not paraphrase, condense, or substitute excerpts for these files in the dispatch prompt.
+- A requirement to use `references/anti-slop.md` within the approved brief, while leaving the one-time judgment about whether all three candidates are orthogonal to the main agent's completed Stage 1 work.
+- A requirement to self-check the finished implementation against `references/visual-quality-bar.md` and `references/interaction-quality-bar.md`, verify that the approved brief's signature element and anti-default are present in the code, then report pass/fail against every applicable gate in `references/arena-scorecard.md`.
 - The allowed scope: frontend redesign only; if any change outside that scope is needed, report it to the main agent, and have the main agent stop and ask the user to confirm before continuing.
 - The expected validation commands.
 - The requirement to preserve functionality and avoid unrelated refactors.
 
+Do not include any other domain-pack path in a builder dispatch, and do not ask a builder to discover or browse the domain-pack directory. The builder uses the assigned `DESIGN_BRIEF.md` as its only style-specific source.
+
 Each builder should:
 
 1. Inspect the local worktree.
-2. Run the project's install command from the Stage 1 technical snapshot inside this worktree before making changes. Report installation failures to the main agent; the main agent must stop and ask the user whether to retry, fix the environment, skip this style, or cancel. On Windows, if the failure is `spawn EPERM` from Node, Vite, esbuild, or Vitest, treat it as a likely sandbox or OS execution-permission issue and retry the same command with escalation before treating the product code as broken.
-3. Implement its complete style direction.
-4. Run the relevant lint, typecheck, test, or build commands available in the project. Apply the same `spawn EPERM` retry rule to validation commands.
-5. Perform the required reference-based self-check: inspect the implementation against the visual and interaction quality bars, confirm the brief's signature element and anti-default in code, and record the scorecard's pass/fail results.
-6. Summarize changed files, visual decisions, validation results, risks, and the self-check results for the main agent. If browser preview was intentionally deferred to the main agent, say that explicitly instead of presenting it as an implementation failure.
-7. Commit the branch when its version is ready:
+2. Verify that root-level `DESIGN_BRIEF.md` exists, is tracked, and has already been committed on the assigned branch. If it is missing, untracked, or uncommitted, stop and report the boundary failure to the main agent instead of implementing from a prompt summary.
+3. Read the complete `DESIGN_BRIEF.md`, all four universal references, and `shared-judgments.md` when that extra path was supplied.
+4. Run the project's install command from the Stage 1 technical snapshot inside this worktree before making changes. Report installation failures to the main agent; the main agent must stop and ask the user whether to retry, fix the environment, skip this style, or cancel. On Windows, if the failure is `spawn EPERM` from Node, Vite, esbuild, or Vitest, treat it as a likely sandbox or OS execution-permission issue and retry the same command with escalation before treating the product code as broken.
+5. Implement the complete approved style direction.
+6. Run the relevant lint, typecheck, test, or build commands available in the project. Apply the same `spawn EPERM` retry rule to validation commands.
+7. Perform the required reference-based self-check: inspect the implementation against the visual and interaction quality bars, confirm the brief's signature element and anti-default in code, and record the scorecard's pass/fail results.
+8. Summarize changed files, visual decisions, validation results, risks, and the self-check results for the main agent. If browser preview was intentionally deferred to the main agent, say that explicitly instead of presenting it as an implementation failure.
+9. Commit the branch when its version is ready:
 
 ```bash
 git status --short
