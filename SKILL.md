@@ -215,12 +215,25 @@ Inspect the product:
 - For JavaScript/Vite/esbuild/Vitest projects on Windows, note in the technical snapshot that `spawn EPERM` from install, build, test, or dev commands is usually an environment permission issue. If a cheap baseline command already fails this way, plan to retry the same command with escalation before diagnosing application code.
 - If the user requested market or reference inspiration, research or inspect the provided references before proposing directions.
 
+### Critical Gate: Define Three Strong Directions Before Creating Worktrees
+
+This is the highest-weight and highest-leverage stage in the entire workflow. Do not treat direction drafting as one checklist item among many. If the three briefs are not genuinely distinct before worktree creation, stronger execution in Stage 3 will only produce three polished versions of the same weak design proposition; it cannot recover the missing strategic separation.
+
+Before drafting any direction, the main agent must read the complete original text of:
+
+- [`references/direction-brief.md`](references/direction-brief.md), which defines the seven required brief elements, the token summary format, and the conditions that make all three briefs unqualified and require a rewrite.
+- The matching product-type calibration file under [`references/domain-packs/*.md`](references/domain-packs/), which supplies an evidence-based starting point for drafting briefs in that domain, such as a finance-data product.
+- [`references/anti-slop.md`](references/anti-slop.md), which identifies default AI-design traps and requires the three directions to rotate across different design logics.
+
+Do not create worktrees or dispatch builders until this reading and brief-writing gate is complete. The main agent owns the one-time arena-level judgment that the three directions are sufficiently orthogonal.
+
 Prepare a concise "Arena Brief" for user confirmation:
 
 - Product snapshot: what the product does, who uses it, and which screens matter most.
 - Technical snapshot: framework, install command, dev command, build/test commands, likely preview ports, required environment variables, local services or mock backends, and any setup, codegen, or build-before-dev steps.
 - Three style directions: Style A, Style B, Style C.
-- For each direction: name, intent, layout density, color/typography/component language, interaction feel, suitable product signal, and main risk.
+- Draft each direction with all seven elements and the token summary required by `references/direction-brief.md`, calibrated by the matching domain pack and differentiated through the design-logic rotation in `references/anti-slop.md`.
+- Apply the rewrite criteria in `references/direction-brief.md` to the three briefs as a set. If they fail, rewrite them before asking for user confirmation.
 
 Ask the user to confirm, replace, or adjust the three directions. Do not create worktrees until they confirm.
 
@@ -380,6 +393,9 @@ For each builder, provide:
 - The product snapshot and technical snapshot.
 - The assigned style direction.
 - The screens and flows to prioritize.
+- An explicit instruction to locate this `vibe-design-arena` skill and personally read the complete original text of [`references/anti-slop.md`](references/anti-slop.md), [`references/visual-quality-bar.md`](references/visual-quality-bar.md), [`references/interaction-quality-bar.md`](references/interaction-quality-bar.md), and [`references/arena-scorecard.md`](references/arena-scorecard.md) before implementing. The main agent must not paraphrase, condense, or substitute excerpts for these files in the dispatch prompt.
+- A requirement to use `references/anti-slop.md` within the assigned direction, while leaving the one-time judgment about whether all three directions are orthogonal to the main agent's completed Stage 1 work.
+- A requirement to self-check the finished implementation against `references/visual-quality-bar.md` and `references/interaction-quality-bar.md`, verify that the assigned brief's signature element and anti-default are present in the code, then report pass/fail against every applicable gate in `references/arena-scorecard.md`.
 - The allowed scope: frontend redesign only; if any change outside that scope is needed, report it to the main agent, and have the main agent stop and ask the user to confirm before continuing.
 - The expected validation commands.
 - The requirement to preserve functionality and avoid unrelated refactors.
@@ -390,8 +406,9 @@ Each builder should:
 2. Run the project's install command from the Stage 1 technical snapshot inside this worktree before making changes. Report installation failures to the main agent; the main agent must stop and ask the user whether to retry, fix the environment, skip this style, or cancel. On Windows, if the failure is `spawn EPERM` from Node, Vite, esbuild, or Vitest, treat it as a likely sandbox or OS execution-permission issue and retry the same command with escalation before treating the product code as broken.
 3. Implement its complete style direction.
 4. Run the relevant lint, typecheck, test, or build commands available in the project. Apply the same `spawn EPERM` retry rule to validation commands.
-5. Summarize changed files, visual decisions, validation results, and risks. If browser preview was intentionally deferred to the main agent, say that explicitly instead of presenting it as an implementation failure.
-6. Commit the branch when its version is ready:
+5. Perform the required reference-based self-check: inspect the implementation against the visual and interaction quality bars, confirm the brief's signature element and anti-default in code, and record the scorecard's pass/fail results.
+6. Summarize changed files, visual decisions, validation results, risks, and the self-check results for the main agent. If browser preview was intentionally deferred to the main agent, say that explicitly instead of presenting it as an implementation failure.
+7. Commit the branch when its version is ready:
 
 ```bash
 git status --short
@@ -545,6 +562,12 @@ If HTTP probing still gets no response after the retry loop, treat that style's 
 
 Only stop preview servers that the main agent started and recorded. Do not kill unrelated processes just because they use a similar port.
 
+## Stage 4.5: Aggregate Self-Checks And Run Lightweight Spot Checks
+
+Before asking the user to choose, the main agent must aggregate all three builders' scorecard pass/fail self-assessments and run lightweight spot checks rather than repeating every reference check from scratch. At minimum, sample responsive behavior in a narrowed viewport, tab through key controls, and toggle `prefers-reduced-motion` in browser developer tools.
+
+If an observed result conflicts with a builder's self-assessment, report the discrepancy explicitly alongside that builder's original conclusion; do not silently overwrite it. Present all three alternatives to the user regardless of pass/fail status. [`references/arena-scorecard.md`](references/arena-scorecard.md) is only a pass/fail eligibility aid: it does not score, rank, filter, or make the aesthetic choice. The user retains the complete aesthetic judgment.
+
 Give the user a comparison table:
 
 - Style letter and name.
@@ -552,6 +575,7 @@ Give the user a comparison table:
 - Preview URL.
 - Commit hash.
 - Validation commands and results.
+- Builder scorecard self-assessment and any discrepancy found in the main agent's spot checks.
 - Main visual thesis.
 - Known risks.
 
