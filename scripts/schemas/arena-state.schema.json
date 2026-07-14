@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibe-design-arena.local/schemas/arena-state.schema.json",
+  "title": "Vibe Design Arena State",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "stateRevision",
+    "arenaId",
+    "stage",
+    "status",
+    "paths",
+    "repository",
+    "skillSnapshot",
+    "styles",
+    "publication"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "stateRevision": {"type": "integer", "minimum": 1},
+    "arenaId": {"type": "string", "minLength": 1},
+    "stage": {
+      "enum": [
+        "preflight",
+        "briefs-approved",
+        "worktrees-ready",
+        "building",
+        "previews-ready",
+        "qualifying",
+        "selection-ready",
+        "selected",
+        "merged",
+        "cleaned",
+        "complete"
+      ]
+    },
+    "status": {"enum": ["ready", "running", "blocked", "failed", "complete"]},
+    "paths": {
+      "type": "object",
+      "required": ["runRoot", "recordsRoot", "worktreeRoot", "stateFile", "eventLog"],
+      "properties": {
+        "runRoot": {"type": "string"},
+        "recordsRoot": {"type": "string"},
+        "worktreeRoot": {"type": "string"},
+        "stateFile": {"type": "string"},
+        "eventLog": {"type": "string"}
+      }
+    },
+    "repository": {
+      "type": "object",
+      "required": ["root", "baseBranch", "baseSha"],
+      "properties": {
+        "root": {"type": "string"},
+        "baseBranch": {"type": ["string", "null"]},
+        "baseSha": {"type": ["string", "null"]}
+      }
+    },
+    "styles": {
+      "type": "object",
+      "required": ["style-a", "style-b", "style-c"],
+      "properties": {
+        "style-a": {"$ref": "#/$defs/style"},
+        "style-b": {"$ref": "#/$defs/style"},
+        "style-c": {"$ref": "#/$defs/style"}
+      }
+    },
+    "publication": {
+      "type": "object",
+      "required": ["main", "style-a", "style-b", "style-c"]
+    }
+  },
+  "$defs": {
+    "style": {
+      "type": "object",
+      "required": [
+        "branch",
+        "worktree",
+        "candidateGeneration",
+        "brief",
+        "preview",
+        "qualification"
+      ],
+      "properties": {
+        "candidateGeneration": {"type": "integer", "minimum": 1},
+        "qualification": {
+          "type": "object",
+          "required": [
+            "briefIntegrity",
+            "validation",
+            "automatedQa",
+            "mainAgentVisualReview",
+            "directionConsistencyReview",
+            "overall"
+          ]
+        }
+      }
+    }
+  }
+}

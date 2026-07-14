@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibe-design-arena.local/schemas/builder-result.schema.json",
+  "title": "Vibe Design Arena Builder Result",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "arenaId",
+    "style",
+    "dispatchId",
+    "candidateGeneration",
+    "branch",
+    "briefCommit",
+    "briefSha256",
+    "implementationCommit",
+    "validation",
+    "changedFiles",
+    "risks"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "style": {"enum": ["style-a", "style-b", "style-c"]},
+    "candidateGeneration": {"type": "integer", "minimum": 1},
+    "validation": {
+      "type": "object",
+      "required": ["overall", "commands"],
+      "properties": {
+        "overall": {"enum": ["PASS", "FAIL"]},
+        "commands": {"type": "array"}
+      }
+    },
+    "changedFiles": {"type": "array", "items": {"type": "string"}},
+    "risks": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}
