@@ -9,13 +9,15 @@ $ErrorActionPreference = 'Stop'
 
 $scriptRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $arenaScript = Join-Path $scriptRoot 'arena.ps1'
+Import-Module (Join-Path $PSScriptRoot 'Smoke.TestHarness.psm1') -Force
 
 $utf8NoBom = New-Object Text.UTF8Encoding($false)
 $succeeded = $false
+$finalResult = $null
 
 function Assert-True {
     param([bool]$Condition, [string]$Message)
-    if (-not $Condition) { throw "ASSERTION FAILED: $Message" }
+    Assert-SmokeCondition -Condition $Condition -Message $Message
 }
 
 function Write-TestFile {
@@ -32,19 +34,7 @@ function Write-TestJson {
 
 function Invoke-TestGit {
     param([string]$Repository, [string[]]$Arguments, [switch]$AllowFailure)
-    $previousPreference = $ErrorActionPreference
-    try {
-        $ErrorActionPreference = 'Continue'
-        $output = @(& git -C $Repository @Arguments 2>&1)
-    } finally {
-        $ErrorActionPreference = $previousPreference
-    }
-    $exitCode = $LASTEXITCODE
-    $text = (($output | ForEach-Object { [string]$_ }) -join "`n").TrimEnd()
-    if ($exitCode -ne 0 -and -not $AllowFailure) {
-        throw "git -C `"$Repository`" $($Arguments -join ' ') failed ($exitCode): $text"
-    }
-    return [pscustomobject]@{ exitCode = $exitCode; output = $text }
+    return Invoke-SmokeNativeProcess -Executable 'git.exe' -Arguments (@('-C', $Repository) + $Arguments) -AllowFailure:$AllowFailure -Description "git -C `"$Repository`" $($Arguments -join ' ')"
 }
 
 function Invoke-ArenaProcess {
@@ -80,17 +70,18 @@ function Invoke-ArenaProcess {
                 $boundParameters[$key] = $true
             }
         }
-        $output = @(& $arenaScript $Command @boundParameters)
-        $exitCode = 0
+        try {
+            $output = @(& $arenaScript $Command @boundParameters)
+        } catch {
+            throw "Arena command '$Command' failed: $($_.Exception.Message)"
+        }
     }
     $text = (($output | ForEach-Object { [string]$_ }) -join "`n").Trim()
     if ($ExpectFailure) {
         Assert-True ($exitCode -ne 0) "$Command was expected to fail. Output: $text"
         return $text
     }
-    if ($exitCode -ne 0) { throw "$Command failed ($exitCode): $text" }
-    if ([string]::IsNullOrWhiteSpace($text)) { throw "$Command returned no JSON." }
-    return $text | ConvertFrom-Json
+    return ConvertFrom-SmokeJson -Output $output -Description "Arena command '$Command'"
 }
 
 function New-TestQaResult {
@@ -196,8 +187,7 @@ server.listen(port, '127.0.0.1');
     Invoke-TestGit -Repository $repository -Arguments @('commit', '-m', 'Baseline product') | Out-Null
     $originalBaseline = (Invoke-TestGit -Repository $repository -Arguments @('rev-parse', 'HEAD')).output
 
-    & git init --bare $remote | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw 'Unable to create local bare remote.' }
+    Invoke-SmokeNativeProcess -Executable 'git.exe' -Arguments @('init', '--bare', $remote) -Description 'Create local bare remote' | Out-Null
     Invoke-TestGit -Repository $repository -Arguments @('remote', 'add', 'origin', $remote) | Out-Null
 
     $ports = @()
@@ -437,8 +427,7 @@ server.listen(port, '127.0.0.1');
     Assert-True (@(Get-ChildItem -LiteralPath $recordsRoot -Filter '*.tmp' -Recurse -Force).Count -eq 0) 'Atomic state writes left temporary files.'
     Assert-True ((Get-Content -LiteralPath (Join-Path $recordsRoot 'events.jsonl') -Encoding utf8).Count -ge 10) 'Event log is unexpectedly incomplete.'
 
-    $succeeded = $true
-    [pscustomobject][ordered]@{
+    $finalResult = [pscustomobject][ordered]@{
         status = 'PASS'
         testRoot = $testRootAbsolute
         finalRevision = $state.stateRevision
@@ -446,7 +435,8 @@ server.listen(port, '127.0.0.1');
         selected = $state.selection.style
         retainedBranches = @('style-a', 'style-b', 'style-c')
         partiallyPublished = 'style-b'
-    } | ConvertTo-Json -Depth 10
+    }
+    $succeeded = $true
 } finally {
     if ($succeeded -and -not $KeepArtifacts -and (Test-Path -LiteralPath $testRootAbsolute)) {
         $resolved = (Resolve-Path -LiteralPath $testRootAbsolute).Path
@@ -456,3 +446,5 @@ server.listen(port, '127.0.0.1');
         Remove-Item -LiteralPath $resolved -Recurse -Force
     }
 }
+
+$finalResult | ConvertTo-Json -Depth 10

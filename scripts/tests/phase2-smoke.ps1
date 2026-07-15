@@ -1,23 +1,27 @@
 [CmdletBinding()]
 param(
     [string]$BaseRoot = 'C:\tmp',
-    [switch]$KeepArtifacts
+    [switch]$KeepArtifacts,
+    [string]$QaUnitPath,
+    [string]$LifecycleSmokePath,
+    [string]$NodeExecutable = 'node.exe'
 )
 
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 
-$qaUnit = Join-Path $PSScriptRoot 'arena-qa-unit.mjs'
-$lifecycleSmoke = Join-Path $PSScriptRoot 'phase1-smoke.ps1'
+Import-Module (Join-Path $PSScriptRoot 'Smoke.TestHarness.psm1') -Force
+$qaUnit = if ($QaUnitPath) { $QaUnitPath } else { Join-Path $PSScriptRoot 'arena-qa-unit.mjs' }
+$lifecycleSmoke = if ($LifecycleSmokePath) { $LifecycleSmokePath } else { Join-Path $PSScriptRoot 'phase1-smoke.ps1' }
 
-$unitOutput = @(& node.exe $qaUnit 2>&1)
-if ($LASTEXITCODE -ne 0) { throw "Declarative QA unit tests failed:`n$($unitOutput -join "`n")" }
-$unitResult = ($unitOutput -join "`n") | ConvertFrom-Json
-if ($unitResult.status -ne 'PASS') { throw 'Declarative QA unit tests did not report PASS.' }
+$unitProcess = Invoke-SmokeNativeProcess -Executable $NodeExecutable -Arguments @($qaUnit) -Description 'Declarative QA unit tests'
+$unitResult = ConvertFrom-SmokeJson -Output @($unitProcess.output) -Description 'Declarative QA unit tests' -RequirePass
 
 $parameters = @{ BaseRoot = $BaseRoot }
 if ($KeepArtifacts) { $parameters.KeepArtifacts = $true }
-$lifecycleResult = & $lifecycleSmoke @parameters
+try { $lifecycleOutput = @(& $lifecycleSmoke @parameters) }
+catch { throw "Lifecycle smoke test failed: $($_.Exception.Message)" }
+$lifecycleResult = ConvertFrom-SmokeJson -Output $lifecycleOutput -Description 'Lifecycle smoke test' -RequirePass
 
 [pscustomobject][ordered]@{
     status = 'PASS'
