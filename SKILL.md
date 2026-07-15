@@ -13,7 +13,7 @@ The Arena is a design workflow with a scripted state machine. Scripts prove iden
 
 1. Create exactly three candidate branches and linked worktrees from the same final `BASE_SHA`.
 2. Make the directions structurally independent. Palette, font, radius, or dark/light swaps do not count as three directions.
-3. Keep a complete, separate `DESIGN_BRIEF.md` for every candidate. Before creating worktrees, show the user a Markdown comparison table of the three directions' decision-relevant summaries and obtain one explicit direction approval. Do not paste the three full briefs into chat unless the user asks to inspect one or more of them.
+3. Keep a complete, separate `DESIGN_BRIEF.md` for every candidate. Before creating worktrees, show the user a Markdown comparison table of the three directions' decision-relevant summaries and obtain one explicit approval of the three-direction set to enter implementation. Do not paste the three full briefs into chat unless the user asks to inspect one or more of them.
 4. Build and qualify all three candidates. Never hide or drop a weak candidate to reach selection.
 5. Let the user choose one complete winner. Do not mix versions, cherry-pick favorite elements, average scores, or let QA choose.
 6. Merge only the selected branch. Remove worktrees only after post-merge validation.
@@ -40,7 +40,8 @@ If the user asks to combine versions, explain that this Skill protects whole-dir
 ### Builder
 
 - Work only in the assigned worktree and branch.
-- Read the committed `DESIGN_BRIEF.md` and the frozen references supplied by the main agent.
+- Read the committed `DESIGN_BRIEF.md` and only the stage-appropriate frozen references supplied by the main agent.
+- Never receive or inspect another candidate's brief, the three-direction comparison table, arena-level comparison material, or source files that describe sibling directions.
 - Implement one complete direction without editing the approved brief.
 - Preserve product behavior and avoid unrelated refactors.
 - Run declared validation, perform a preliminary quality self-check, commit the implementation, and emit a builder result bound to the current commit.
@@ -59,15 +60,18 @@ If the user asks to combine versions, explain that this Skill protects whole-dir
 
 ## Reference Routing
 
-Read only what the current stage needs, but read each selected file completely.
+Universal references are mandatory at their stated stages, not all at Skill load time. Read only what the current stage needs, but read each selected file completely.
 
 - Before drafting directions: [`references/direction-brief.md`](references/direction-brief.md) and [`references/anti-slop.md`](references/anti-slop.md).
-- When a domain pack matches: read its `shared-judgments.md`, all three direction sources, and `orthogonality-check.md`; begin with [`references/domain-packs/README.md`](references/domain-packs/README.md).
+- Before drafting directions, optionally select at most one domain pack for the entire Arena run. Select it only when the product's primary task, core content shape, and target users clearly match an existing pack; all three candidates use that selected domain pack, or all three use none. For cross-domain products, choose by the Arena run's primary task. If no single pack clearly matches, select none and continue with the universal references. Never combine packs or invent an unvalidated pack for coverage.
+- When a domain pack is selected: the main agent reads its `shared-judgments.md`, `directions/direction-a.md`, `directions/direction-b.md`, `directions/direction-c.md`, and `orthogonality-check.md` completely; begin with [`references/domain-packs/README.md`](references/domain-packs/README.md). A selected domain pack calibrates the domain but never replaces the universal direction, anti-slop, visual, interaction, or qualification standards.
 - Before implementation and rendered review: [`references/visual-quality-bar.md`](references/visual-quality-bar.md), [`references/interaction-quality-bar.md`](references/interaction-quality-bar.md), and [`references/arena-scorecard.md`](references/arena-scorecard.md).
 - Before operating the state machine: [`references/arena-lifecycle.md`](references/arena-lifecycle.md).
 - Before authoring or running declarative browser QA: [`references/qa-configuration.md`](references/qa-configuration.md) and the schemas under `scripts/schemas/`.
 
-Resolve every reference from the loaded `SKILL_ROOT`, not from the product worktree. Freeze the absolute path and SHA-256 of every consumed file before briefs are drafted. If a frozen file changes or becomes unavailable, stop; restore the frozen bytes or ask the user to restart or cancel the Arena. Never update the manifest in place.
+The absence of a matching domain pack never blocks brief drafting, approval of the three-direction set, worktree creation, building, QA, qualification, or final selection. Do not force a non-finance product into the finance/data pack.
+
+Resolve every reference from the loaded `SKILL_ROOT`, not from the product worktree. Before briefs are drafted, determine and freeze the complete reference set that this Arena run will consume: the universal references required across its stages, plus the five required files from the selected domain pack, if any. Record each consumed file's absolute path and SHA-256. Unselected packs are not inputs or integrity blockers. Stage-specific reading still occurs at the stages above; freezing does not require loading every universal reference when the Skill first activates. Never add a previously unselected pack or otherwise extend the frozen manifest in place. If the reference set must change, or a frozen file changes or becomes unavailable, restore the frozen bytes or ask the user to restart or cancel the Arena.
 
 ## State Authority
 
@@ -97,7 +101,7 @@ Choose a durable `ARENA_RUN_ROOT` outside the product repository and all candida
 
 ### 2. Create three directions before code
 
-Use the same product and technical snapshot for all three briefs. Apply the direction standard, anti-slop challenge, and matching domain pack. Each direction must define:
+Use the same product and technical snapshot for all three briefs. Apply the universal direction standard and anti-slop challenge, plus the selected domain pack when one exists. Without a selected domain pack, draft the same complete three-direction set from the universal references and product evidence; do not fabricate domain calibration. Each direction must define:
 
 - subject, expert audience, and one primary job;
 - an evidence-backed aesthetic thesis;
@@ -108,19 +112,21 @@ Use the same product and technical snapshot for all three briefs. Apply the dire
 - at least three observable pairwise differences;
 - semantic token commitments and the two-sided replaceability test.
 
-Reject the set if one component tree could express all three by changing tokens, if two share the same first-screen grammar, or if their identities depend on fashionable effects. The main agent owns this comparison; builders do not renegotiate it.
+Reject the set if one component tree could express all three by changing tokens, if two share the same first-screen grammar, or if their identities depend on fashionable effects. When a domain pack is selected, the main agent applies its shared judgments to all three briefs, assigns direction A/B/C to the matching candidate, and uses its orthogonality check on the three-direction set. The main agent owns this comparison; builders do not select, reinterpret, or renegotiate directions.
 
 Save the exact three complete brief files under `ARENA_RUN_ROOT`. Do not compress, replace, or embed their content in a builder dispatch prompt: each builder must receive its assigned complete `DESIGN_BRIEF.md` as a file.
 
-Before creating worktrees, present a single Markdown comparison table—one row per candidate, no full-brief dump—with at least: style/name, primary job and audience, aesthetic thesis, first-screen grammar, signature element, intentional risk, anti-default replacement, responsive posture, and the observable distinctions from the other two directions. The table is a user-facing decision aid, not a substitute for any `DESIGN_BRIEF.md`.
+Before creating worktrees, present a single Markdown comparison table—one row per candidate, no full-brief dump—with at least: style/name, primary job and audience, aesthetic thesis, first-screen grammar, signature element, intentional risk, anti-default replacement, responsive posture, and the observable distinctions from the other two directions. The table is a user-facing decision aid for approving the three-direction set to enter implementation, not a substitute for any `DESIGN_BRIEF.md` and not a winner selection.
 
-Ask for one explicit direction approval against that table, while naming the saved full brief files and offering their contents on request. After approval, hash the exact UTF-8 bytes of all three full briefs. The approved full files, not the table or a compressed prompt, are the source of truth for materialization, brief-integrity checks, and builders. Do not silently regenerate them.
+Ask for one explicit approval of the three-direction set against that table, while naming the saved full brief files and offering their contents on request. After approval, hash the exact UTF-8 bytes of all three full briefs. The approved full files, not the table or a compressed prompt, are the source of truth for materialization, brief-integrity checks, and builders. Do not silently regenerate them.
 
 ### 3. Materialize isolated candidates
 
 Use `create-worktrees` to create three linked worktrees from the same final `BASE_SHA`. Materialize each approved brief byte-for-byte, verify its approved SHA-256, commit it on the matching branch, and record the brief commit.
 
 Dispatch three builders in parallel when delegation is available; otherwise build sequentially and tell the user that dispatch was unavailable. Isolation and the three-candidate completion gate do not change.
+
+Each builder receives only its own committed `DESIGN_BRIEF.md`, the universal references allowed for the implementation stage, and—only when the main agent lists it as a dispatch input—the selected domain pack's `shared-judgments.md`. With no selected domain pack, dispatch no domain-pack files. Never dispatch direction source files, `orthogonality-check.md`, either sibling brief, the user comparison table, or other arena-level material that could reveal or encourage imitation of sibling directions.
 
 Import only schema-valid builder results. A result must identify its Arena, style, candidate generation, brief identity, current implementation commit, validation, and preliminary evidence. A stale result never advances the candidate.
 

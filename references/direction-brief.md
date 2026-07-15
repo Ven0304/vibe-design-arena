@@ -13,7 +13,7 @@ Use this file during direction drafting, before any worktree is created. A direc
 
 ## Drafting Rule
 
-Write all three briefs from the same product snapshot and technical snapshot. Use the matching domain pack to ground product-specific choices, then use `anti-slop.md` to force the three briefs into different design logics.
+Write all three briefs from the same product snapshot and technical snapshot. If the Arena run has a selected domain pack, use it to ground product-specific choices; otherwise use product evidence and the universal direction standards. Then use `anti-slop.md` to force the three briefs into different design logics.
 
 Do not start from style labels such as `brutalist`, `glassmorphism`, `editorial`, or `minimal`. A label may describe the result after the thesis is written, but it cannot substitute for the thesis.
 

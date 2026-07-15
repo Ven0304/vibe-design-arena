@@ -2,7 +2,7 @@
 
 > **Purpose:** Supplies the domain-wide task modes and judgments shared by every candidate direction.
 >
-> **Readers:** The main agent and all builders assigned to this domain pack.
+> **Readers:** The main agent; a builder only when the main agent explicitly lists this file in that builder's dispatch.
 
 Use this pack in Stage 1 when the product centers on financial data, investment research, market monitoring, comparison, or research operations. Read it before drafting the three direction briefs.
 
