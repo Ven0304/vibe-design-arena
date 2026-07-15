@@ -1,0 +1,591 @@
+{
+    "formatVersion":  "1.0",
+    "oracle":  "PowerShell",
+    "fixture":  "missing-required-input-or-state",
+    "cases":  [
+                  {
+                      "kind":  "controller",
+                      "name":  "preflight",
+                      "argv":  [
+                                   "preflight",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "preflight",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : preflight requires -Repo when creating a new Arena state.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : preflight requires -Repo when creating a new Arena state.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "create-worktrees",
+                      "argv":  [
+                                   "create-worktrees",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "create-worktrees",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : �Ҳ���·����C:\\tmp\\vda-contract-514262b9\\records\\briefs������Ϊ��·�������ڡ�\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : �Ҳ���·����\u003cFIXTURE_ROOT\u003e/records/briefs������Ϊ��·�������ڡ�\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "start-previews",
+                      "argv":  [
+                                   "start-previews",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "start-previews",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : start-previews requires -ExpectedRevision from the latest status output.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : start-previews requires -ExpectedRevision from the latest status output.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "stop-previews",
+                      "argv":  [
+                                   "stop-previews",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "stop-previews",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : stop-previews requires -ExpectedRevision from the latest status output.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : stop-previews requires -ExpectedRevision from the latest status output.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "status",
+                      "argv":  [
+                                   "status",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "status",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : JSON file not found: C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : JSON file not found: \u003cFIXTURE_ROOT\u003e/records/arena-state.json\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "import-builder-result",
+                      "argv":  [
+                                   "import-builder-result",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "import-builder-result",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : import-builder-result requires -ResultPath.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : import-builder-result requires -ResultPath.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "import-qa-result",
+                      "argv":  [
+                                   "import-qa-result",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "import-qa-result",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : import-qa-result requires -ResultPath.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : import-qa-result requires -ResultPath.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "sign-visual-review",
+                      "argv":  [
+                                   "sign-visual-review",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "sign-visual-review",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : sign-visual-review requires -Style, -Result, -Reviewer, -CandidateCommit, and -EvidenceIds.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : sign-visual-review requires -Style, -Result, -Reviewer, -CandidateCommit, and -EvidenceIds.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "sign-direction-review",
+                      "argv":  [
+                                   "sign-direction-review",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "sign-direction-review",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : sign-direction-review requires -Style, -Result, -Reviewer, -CandidateCommit, and -EvidenceIds.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : sign-direction-review requires -Style, -Result, -Reviewer, -CandidateCommit, and -EvidenceIds.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "qualify",
+                      "argv":  [
+                                   "qualify",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "qualify",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : qualify requires -Style.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : qualify requires -Style.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "select",
+                      "argv":  [
+                                   "select",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "select",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : select requires -Style.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : select requires -Style.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "merge",
+                      "argv":  [
+                                   "merge",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "merge",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : merge requires -ExpectedRevision from the latest status output.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : merge requires -ExpectedRevision from the latest status output.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "cleanup",
+                      "argv":  [
+                                   "cleanup",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "cleanup",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : cleanup requires -ExpectedRevision from the latest status output.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : cleanup requires -ExpectedRevision from the latest status output.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "publish-plan",
+                      "argv":  [
+                                   "publish-plan",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "publish-plan",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : JSON file not found: C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : JSON file not found: \u003cFIXTURE_ROOT\u003e/records/arena-state.json\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "publish",
+                      "argv":  [
+                                   "publish",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "publish",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : publish requires -ConfirmPublish after reviewing publish-plan.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : publish requires -ConfirmPublish after reviewing publish-plan.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "controller",
+                      "name":  "handoff-docs",
+                      "argv":  [
+                                   "handoff-docs",
+                                   "-State",
+                                   "C:\\tmp\\vda-contract-514262b9\\records\\arena-state.json"
+                               ],
+                      "normalizedArgv":  [
+                                             "handoff-docs",
+                                             "-State",
+                                             "\u003cFIXTURE_ROOT\u003e/records/arena-state.json"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "",
+                      "stderr":  "C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\scripts\\arena.p\r\ns1 : handoff-docs requires -ExpectedRevision from the latest status output.\r\n����λ�� C:\\Users\\26349\\Desktop\\XingHan_Capital_Workspace\\Victor\\project_1.2\u00261.3\\.codex\\skills\\vibe-design-arena\\script\r\ns\\arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "normalizedStdout":  "",
+                      "normalizedStderr":  "C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/scripts/arena.p\r\ns1 : handoff-docs requires -ExpectedRevision from the latest status output.\r\n����λ�� C:/Users/26349/Desktop/XingHan_Capital_Workspace/Victor/project_1.2\u00261.3/.codex/skills/vibe-design-arena/script\r\ns/arena.ps1:1130 �ַ�: 5\r\n+     Write-Error $_.Exception.Message\r\n+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,arena.ps1",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "integrity",
+                      "name":  "snapshot",
+                      "argv":  [
+                                   "snapshot"
+                               ],
+                      "normalizedArgv":  [
+                                             "snapshot"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "{\r\n    \"schemaVersion\":  \"1.0\",\r\n    \"action\":  \"snapshot\",\r\n    \"status\":  \"FAIL\",\r\n    \"timestamp\":  \"2026-07-15T08:22:35.5522463Z\",\r\n    \"details\":  {\r\n                    \"error\":  \"snapshot requires -SkillRoot.\"\r\n                }\r\n}",
+                      "stderr":  "",
+                      "normalizedStdout":  "{\r\n    \"schemaVersion\":  \"1.0\",\r\n    \"action\":  \"snapshot\",\r\n    \"status\":  \"FAIL\",\r\n    \"timestamp\":  \"\u003cTIMESTAMP\u003e\",\r\n    \"details\":  {\r\n                    \"error\":  \"snapshot requires -SkillRoot.\"\r\n                }\r\n}",
+                      "normalizedStderr":  "",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "integrity",
+                      "name":  "normalize-brief",
+                      "argv":  [
+                                   "normalize-brief"
+                               ],
+                      "normalizedArgv":  [
+                                             "normalize-brief"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "{\r\n    \"schemaVersion\":  \"1.0\",\r\n    \"action\":  \"normalize-brief\",\r\n    \"status\":  \"FAIL\",\r\n    \"timestamp\":  \"2026-07-15T08:22:35.9037780Z\",\r\n    \"details\":  {\r\n                    \"error\":  \"normalize-brief requires -Path.\"\r\n                }\r\n}",
+                      "stderr":  "",
+                      "normalizedStdout":  "{\r\n    \"schemaVersion\":  \"1.0\",\r\n    \"action\":  \"normalize-brief\",\r\n    \"status\":  \"FAIL\",\r\n    \"timestamp\":  \"\u003cTIMESTAMP\u003e\",\r\n    \"details\":  {\r\n                    \"error\":  \"normalize-brief requires -Path.\"\r\n                }\r\n}",
+                      "normalizedStderr":  "",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "integrity",
+                      "name":  "check-attributes",
+                      "argv":  [
+                                   "check-attributes"
+                               ],
+                      "normalizedArgv":  [
+                                             "check-attributes"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "{\r\n    \"schemaVersion\":  \"1.0\",\r\n    \"action\":  \"check-attributes\",\r\n    \"status\":  \"FAIL\",\r\n    \"timestamp\":  \"2026-07-15T08:22:36.2470449Z\",\r\n    \"details\":  {\r\n                    \"error\":  \"check-attributes requires -Repository.\"\r\n                }\r\n}",
+                      "stderr":  "",
+                      "normalizedStdout":  "{\r\n    \"schemaVersion\":  \"1.0\",\r\n    \"action\":  \"check-attributes\",\r\n    \"status\":  \"FAIL\",\r\n    \"timestamp\":  \"\u003cTIMESTAMP\u003e\",\r\n    \"details\":  {\r\n                    \"error\":  \"check-attributes requires -Repository.\"\r\n                }\r\n}",
+                      "normalizedStderr":  "",
+                      "createdFiles":  [
+
+                                       ]
+                  },
+                  {
+                      "kind":  "integrity",
+                      "name":  "verify-brief",
+                      "argv":  [
+                                   "verify-brief"
+                               ],
+                      "normalizedArgv":  [
+                                             "verify-brief"
+                                         ],
+                      "preconditions":  {
+                                            "stateExists":  false,
+                                            "files":  [
+
+                                                      ]
+                                        },
+                      "stateBefore":  null,
+                      "stateAfter":  null,
+                      "exitCode":  1,
+                      "stdout":  "{\r\n    \"schemaVersion\":  \"1.0\",\r\n    \"action\":  \"verify-brief\",\r\n    \"status\":  \"FAIL\",\r\n    \"timestamp\":  \"2026-07-15T08:22:36.5775711Z\",\r\n    \"details\":  {\r\n                    \"error\":  \"verify-brief requires -FrozenPath and -WorkingPath.\"\r\n                }\r\n}",
+                      "stderr":  "",
+                      "normalizedStdout":  "{\r\n    \"schemaVersion\":  \"1.0\",\r\n    \"action\":  \"verify-brief\",\r\n    \"status\":  \"FAIL\",\r\n    \"timestamp\":  \"\u003cTIMESTAMP\u003e\",\r\n    \"details\":  {\r\n                    \"error\":  \"verify-brief requires -FrozenPath and -WorkingPath.\"\r\n                }\r\n}",
+                      "normalizedStderr":  "",
+                      "createdFiles":  [
+
+                                       ]
+                  }
+              ]
+}

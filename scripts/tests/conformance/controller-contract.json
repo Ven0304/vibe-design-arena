@@ -1,0 +1,46 @@
+{
+  "formatVersion": "1.0",
+  "oracle": "scripts/arena.ps1",
+  "integrityOracle": "scripts/arena-integrity.ps1",
+  "schemaVersion": "1.0",
+  "styles": ["style-a", "style-b", "style-c"],
+  "stageOrder": ["preflight", "briefs-approved", "worktrees-ready", "building", "previews-ready", "qualifying", "selection-ready", "selected", "merged", "cleaned", "complete"],
+  "controllerCommands": {
+    "preflight": {"mutation": true, "revision": "new-or-current", "stages": ["absent", "preflight"], "sideEffects": ["run-records", "reference-snapshot", "reviewed-gitattributes-only"]},
+    "create-worktrees": {"mutation": true, "revision": "current", "stages": ["preflight", "briefs-approved"], "sideEffects": ["exactly-three-branches", "exactly-three-worktrees", "brief-byte-copy", "brief-commits"]},
+    "start-previews": {"mutation": true, "revision": "current", "stages": ["building", "previews-ready"], "sideEffects": ["shell-free-process-groups", "logs", "http-probes"]},
+    "stop-previews": {"mutation": true, "revision": "current", "stages": ["pre-selection"], "sideEffects": ["identity-verified-process-stop"]},
+    "status": {"mutation": false, "revision": "none", "stages": ["existing"], "sideEffects": []},
+    "import-builder-result": {"mutation": true, "revision": "current", "stages": ["worktrees-ready", "building", "previews-ready", "qualifying"], "sideEffects": ["validated-artifact-copy", "qa-review-invalidation"]},
+    "import-qa-result": {"mutation": true, "revision": "current", "stages": ["previews-ready", "qualifying"], "sideEffects": ["validated-node-artifact-copy", "human-review-reset"]},
+    "sign-visual-review": {"mutation": true, "revision": "current", "stages": ["qualifying"], "sideEffects": ["human-signature-only"]},
+    "sign-direction-review": {"mutation": true, "revision": "current", "stages": ["qualifying"], "sideEffects": ["human-signature-only"]},
+    "qualify": {"mutation": true, "revision": "current", "stages": ["qualifying"], "sideEffects": ["git-and-artifact-reverification"]},
+    "select": {"mutation": true, "revision": "current", "stages": ["selection-ready"], "sideEffects": ["record-user-choice-only"]},
+    "merge": {"mutation": true, "revision": "current", "stages": ["selected"], "sideEffects": ["recomputed-git-merge", "structured-validation", "no-auto-conflict-resolution"]},
+    "cleanup": {"mutation": true, "revision": "current-plus-internal-complete", "stages": ["merged"], "sideEffects": ["non-force-worktree-removal", "branch-retention-verification", "two-revision-cleaned-complete"]},
+    "publish-plan": {"mutation": false, "revision": "none", "stages": ["existing"], "sideEffects": ["read-local-and-remote-refs"]},
+    "publish": {"mutation": true, "revision": "current", "stages": ["existing"], "sideEffects": ["confirmed-explicit-branch-push", "per-branch-verification"]},
+    "handoff-docs": {"mutation": true, "revision": "current", "stages": ["cleaned", "complete"], "sideEffects": ["generated-records-only"]}
+  },
+  "integrityActions": {
+    "snapshot": {"statuses": ["PASS", "FAIL"], "writeScope": "none"},
+    "normalize-brief": {"statuses": ["PASS", "CHANGED", "FAIL"], "writeScope": "named-file-only-with-write"},
+    "check-attributes": {"statuses": ["PASS", "FAIL"], "writeScope": "none"},
+    "verify-brief": {"statuses": ["PASS", "FAIL"], "writeScope": "none"}
+  },
+  "schemaSha256": {
+    "arena-state.schema.json": "311f54143418a1aed8f9e56524e75ef4933c9291213d527f95ba26771e49030b",
+    "builder-result.schema.json": "9487de5c9dd4cffb4298e0f7d35d7b08c816f809fd8f33b8b1b220eb6e64a898",
+    "integrity-result.schema.json": "3732735f6f37089375e0055bc9dd0f105d5fc12cafcda61ffc594dcc63d6bfe9",
+    "qa-config.schema.json": "080b9c6913ebec6bfe2504867acffa70fa095db3c4b7596472353c845a933a4b",
+    "qa-result.schema.json": "1224e85fe13c5dac5ca9636b374b952fe247bf942a5a26ab018f687c5aeee7a3"
+  },
+  "authorizationInvariants": [
+    "clean-committed-attached-baseline", "exactly-three-style-candidates", "controller-only-state-writes", "no-blind-revision-retry", "shell-free-command-specs", "no-process-stop-by-port-or-pid-alone", "no-automatic-dependency-install", "no-automatic-conflict-resolution-or-abort", "no-force-worktree-removal-with-ambiguous-files", "retain-all-style-branches", "reviewed-confirmed-explicit-publication", "preserve-node-qa-blocked", "no-automatic-human-signatures"
+  ],
+  "traceNormalization": {
+    "normalize": ["fixture-root", "uuid", "timestamp", "pid", "process-creation-time", "port", "git-commit-id"],
+    "preserve": ["status", "stage", "revision-delta", "branch", "error-category", "run-relative-artifact-path", "file-sha256"]
+  }
+}

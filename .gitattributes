@@ -4,3 +4,6 @@
 *.mjs text eol=lf
 *.ps1 text eol=lf
 *.psm1 text eol=lf
+*.py text eol=lf
+/requirements-controller.txt text eol=lf
+/.gitignore text eol=lf

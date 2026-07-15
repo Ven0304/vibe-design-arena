@@ -229,6 +229,9 @@ server.listen(port, '127.0.0.1');
     Assert-True ($state.repository.baseSha -eq $baseSha) 'Recorded BASE_SHA differs from product HEAD.'
     Assert-True ((Invoke-TestGit -Repository $repository -Arguments @('rev-parse', 'HEAD^')).output -eq $originalBaseline) '.gitattributes was not committed immediately after the original baseline.'
     Assert-True ((Invoke-TestGit -Repository $repository -Arguments @('show', '--format=', '--name-only', 'HEAD')).output.Trim() -eq '.gitattributes') 'Preflight baseline commit changed files other than .gitattributes.'
+    $statusSnapshot = Invoke-ArenaProcess -Command 'status'
+    Assert-True ($statusSnapshot.stateRevision -eq $state.stateRevision) 'Read-only status changed or misreported stateRevision.'
+    Assert-True ($statusSnapshot.stage -eq $state.stage -and $statusSnapshot.status -eq $state.status) 'Status summary drifted from Arena state.'
 
     foreach ($styleName in @('style-a', 'style-b', 'style-c')) {
         $briefPath = Join-Path $recordsRoot "briefs\$styleName\DESIGN_BRIEF.md"
