@@ -13,7 +13,7 @@ The Arena is a design workflow with a scripted state machine. Scripts prove iden
 
 1. Create exactly three candidate branches and linked worktrees from the same final `BASE_SHA`.
 2. Make the directions structurally independent. Palette, font, radius, or dark/light swaps do not count as three directions.
-3. Show the user the full contents of all three `DESIGN_BRIEF.md` files and obtain one explicit approval before creating worktrees.
+3. Keep a complete, separate `DESIGN_BRIEF.md` for every candidate. Before creating worktrees, show the user a Markdown comparison table of the three directions' decision-relevant summaries and obtain one explicit direction approval. Do not paste the three full briefs into chat unless the user asks to inspect one or more of them.
 4. Build and qualify all three candidates. Never hide or drop a weak candidate to reach selection.
 5. Let the user choose one complete winner. Do not mix versions, cherry-pick favorite elements, average scores, or let QA choose.
 6. Merge only the selected branch. Remove worktrees only after post-merge validation.
@@ -29,7 +29,7 @@ If the user asks to combine versions, explain that this Skill protects whole-dir
 - Inspect the product, current UI, key routes, real content shape, audience, and technical commands.
 - Create the Arena run record and frozen reference snapshot.
 - Draft three orthogonal directions and own the arena-wide anti-slop judgment.
-- Present all three complete briefs and obtain approval.
+- Preserve all three complete briefs; present their decision-relevant summaries in one Markdown comparison table and obtain approval.
 - Configure preview and QA commands without dynamic shell strings.
 - Dispatch or coordinate three builders while preserving worktree isolation.
 - Open and inspect the screenshots for every candidate.
@@ -53,7 +53,7 @@ If the user asks to combine versions, explain that this Skill protects whole-dir
 
 ### User
 
-- Approves the three complete direction briefs.
+- Approves the three directions through the comparison table; may request any complete brief before approving.
 - Chooses the complete winner after all three qualify.
 - Decides how to handle ambiguous dirty files, destructive cleanup, publication, and product merge conflicts.
 
@@ -110,7 +110,11 @@ Use the same product and technical snapshot for all three briefs. Apply the dire
 
 Reject the set if one component tree could express all three by changing tokens, if two share the same first-screen grammar, or if their identities depend on fashionable effects. The main agent owns this comparison; builders do not renegotiate it.
 
-Save the exact three brief files under `ARENA_RUN_ROOT`, present the shared preface followed by all three full files in one sequence, and ask for one approval. After approval, hash the exact UTF-8 bytes. Do not silently regenerate them.
+Save the exact three complete brief files under `ARENA_RUN_ROOT`. Do not compress, replace, or embed their content in a builder dispatch prompt: each builder must receive its assigned complete `DESIGN_BRIEF.md` as a file.
+
+Before creating worktrees, present a single Markdown comparison table—one row per candidate, no full-brief dump—with at least: style/name, primary job and audience, aesthetic thesis, first-screen grammar, signature element, intentional risk, anti-default replacement, responsive posture, and the observable distinctions from the other two directions. The table is a user-facing decision aid, not a substitute for any `DESIGN_BRIEF.md`.
+
+Ask for one explicit direction approval against that table, while naming the saved full brief files and offering their contents on request. After approval, hash the exact UTF-8 bytes of all three full briefs. The approved full files, not the table or a compressed prompt, are the source of truth for materialization, brief-integrity checks, and builders. Do not silently regenerate them.
 
 ### 3. Materialize isolated candidates
 

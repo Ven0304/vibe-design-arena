@@ -9,7 +9,7 @@ Vibe Design Arena is a Codex Skill for high-stakes frontend redesign work. It us
 ## What it guarantees
 
 - **Three real directions.** Each candidate starts from the same final `BASE_SHA` on `style-a`, `style-b`, and `style-c`; the candidates must differ in information hierarchy, layout grammar, density rhythm, navigation, or interaction posture—not merely in surface styling.
-- **Approval before implementation.** The user sees and approves the complete three `DESIGN_BRIEF.md` files before worktrees are created.
+- **Approval before implementation.** Before worktrees are created, the user compares three decision-relevant direction summaries in one Markdown table and approves a direction set. Each builder still receives its own complete, file-based `DESIGN_BRIEF.md`; the table never replaces it.
 - **Evidence-bound qualification.** A candidate needs brief integrity, declared validation, automated QA, a main-agent visual review, and a direction-consistency review.
 - **The user chooses.** Qualification establishes eligibility only. It never scores, ranks, or picks the winner.
 - **Safe conclusion.** Only the selected branch is merged; worktrees are removed only after post-merge validation; all three candidate branches remain available.
