@@ -1,5 +1,7 @@
 # Vibe Design Arena
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 Build three genuinely different frontend redesigns from one Git baseline, inspect them as complete rendered candidates, and let the user choose one whole winner.
 
 Vibe Design Arena is a Codex Skill for high-stakes frontend redesign work. It uses isolated Git worktrees to protect each direction, a scripted lifecycle to bind decisions and evidence to the right commit, and a human selection gate that preserves design coherence: no mix-and-match, cherry-picking, or automatic winner.
