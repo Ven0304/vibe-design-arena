@@ -29,7 +29,7 @@ If the user asks to combine versions, explain that this Skill protects whole-dir
 - Inspect the product, current UI, key routes, real content shape, audience, and technical commands.
 - Create the Arena run record and frozen reference snapshot.
 - Draft three orthogonal directions and own the arena-wide anti-slop judgment.
-- Preserve all three complete briefs; present their decision-relevant summaries in one Markdown comparison table and obtain approval.
+- Preserve all three complete briefs; verify each fixed `User Comparison Summary`, derive one traceable Markdown comparison table, and obtain approval of the three-direction set.
 - Configure preview and QA commands without dynamic shell strings.
 - Dispatch or coordinate three builders while preserving worktree isolation.
 - Open and inspect the screenshots for every candidate.
@@ -42,7 +42,7 @@ If the user asks to combine versions, explain that this Skill protects whole-dir
 - Work only in the assigned worktree and branch.
 - Read the committed `DESIGN_BRIEF.md` and only the stage-appropriate frozen references supplied by the main agent.
 - Never receive or inspect another candidate's brief, the three-direction comparison table, arena-level comparison material, or source files that describe sibling directions.
-- Implement one complete direction without editing the approved brief.
+- Treat `User Comparison Summary` as an overview of the same complete brief, never as a reduced dispatch contract; implement from all detailed sections without editing the approved brief.
 - Preserve product behavior and avoid unrelated refactors.
 - Run declared validation, perform a preliminary quality self-check, commit the implementation, and emit a builder result bound to the current commit.
 - Never start unmanaged long-running preview servers or modify another candidate.
@@ -114,11 +114,13 @@ Use the same product and technical snapshot for all three briefs. Apply the univ
 
 Reject the set if one component tree could express all three by changing tokens, if two share the same first-screen grammar, or if their identities depend on fashionable effects. When a domain pack is selected, the main agent applies its shared judgments to all three briefs, assigns direction A/B/C to the matching candidate, and uses its orthogonality check on the three-direction set. The main agent owns this comparison; builders do not select, reinterpret, or renegotiate directions.
 
-Save the exact three complete brief files under `ARENA_RUN_ROOT`. Do not compress, replace, or embed their content in a builder dispatch prompt: each builder must receive its assigned complete `DESIGN_BRIEF.md` as a file.
+Save the exact three complete brief files under `ARENA_RUN_ROOT`. Each must contain a fully populated `User Comparison Summary` after approval metadata and before the product snapshot. The summary is part of the complete brief and may only restate commitments established in its detailed sections. Reconcile each summary after the complete brief is otherwise ready; any contradiction or unsupported summary claim means the brief is unfinished and cannot be shown for approval or materialized. Do not compress, replace, or embed the complete brief in a builder dispatch prompt: each builder must receive its assigned complete `DESIGN_BRIEF.md` as a file.
 
-Before creating worktrees, present a single Markdown comparison table—one row per candidate, no full-brief dump—with at least: style/name, primary job and audience, aesthetic thesis, first-screen grammar, signature element, intentional risk, anti-default replacement, responsive posture, and the observable distinctions from the other two directions. The table is a user-facing decision aid for approving the three-direction set to enter implementation, not a substitute for any `DESIGN_BRIEF.md` and not a winner selection.
+Derive one Markdown comparison table from the three fixed summary blocks, with one row per candidate and these columns: Style / direction, Primary job and audience, Aesthetic thesis, First-screen grammar, Signature element, Intentional risk, Anti-default replacement, Responsive posture, and Observable distinctions. Every decision field must trace to the matching brief's `User Comparison Summary`. The main agent may shorten wording, reorder phrases, add line breaks, or lightly compress for table readability, but must not add, remove, mix, exaggerate, or materially change a design commitment or risk. The table is not a score, ranking, recommendation, mix-and-match menu, substitute for a complete brief, or early winner signal.
 
-Ask for one explicit approval of the three-direction set against that table, while naming the saved full brief files and offering their contents on request. After approval, hash the exact UTF-8 bytes of all three full briefs. The approved full files, not the table or a compressed prompt, are the source of truth for materialization, brief-integrity checks, and builders. Do not silently regenerate them.
+By default, show the user only that table, name the three saved complete brief files, and offer any one or more full briefs on request. The user then explicitly approves the three-direction set to enter implementation: all three are worth building, structurally distinct, and acceptable in primary job, risk, and responsive posture. This approval is not a winner choice, does not drop a candidate, and does not permit fewer than three builds. If the user requests a pre-approval revision, update both that brief's detailed sections and summary, recheck the three-direction set, regenerate the table, and request approval again.
+
+Only after approval, hash the exact UTF-8 bytes of all three complete briefs, including their summary blocks. Those approved full files—not the table, summary alone, or a compressed prompt—remain the sole complete source of truth for materialization, brief-integrity checks, review, recovery, and builders. Do not rewrite a summary or any other brief content after approval; use the existing brief-integrity and restart/cancel path if a change is required.
 
 ### 3. Materialize isolated candidates
 

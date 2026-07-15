@@ -9,6 +9,7 @@ Use this file during direction drafting, before any worktree is created. A direc
 - [Token summary](#token-summary)
 - [Two-sided replaceability test](#two-sided-replaceability-test)
 - [Three-brief set gate](#three-brief-set-gate)
+- [User comparison summary](#user-comparison-summary)
 - [Ready-to-use template](#ready-to-use-template)
 
 ## Drafting Rule
@@ -205,6 +206,24 @@ Rewrite the set if any condition is true:
 
 Do not “fix” a failed set by inventing more adjectives. Rewrite the single job, thesis, signature, layout grammar, or design logic until the versions are structurally different.
 
+## User Comparison Summary
+
+Every complete brief contains one fixed `User Comparison Summary` near the front, immediately after approval and integrity metadata. It is part of the same approved and hashed file, not a separate fact source, machine configuration, or reduced builder prompt. Complete it only from commitments already established in that brief:
+
+- **Direction name:** Give the style identifier and direction name.
+- **Primary job and audience:** State one primary task and a specific audience; do not join equal jobs.
+- **Aesthetic thesis:** Compress the observable design proposition and its product reason into one concise statement, not generic adjectives.
+- **First-screen grammar:** State what dominates, what persists, and what is deferred on the first screen.
+- **Signature element:** Name the content- or behavior-bearing signature and its role.
+- **Intentional risk:** State the one chosen risk and the boundary that keeps it usable.
+- **Anti-default replacement:** Name the rejected default and the structural or behavioral replacement.
+- **Responsive posture:** State how hierarchy and layout transform on narrow screens; “responsive” alone is insufficient.
+- **Observable distinctions:** Summarize the structural differences from both sibling directions in terms visible in screenshots or interaction.
+
+Keep every field short enough to support a horizontal comparison table but complete enough to stand without requiring the user to read the detailed sections. Moderate repetition is expected because the summary and body serve different readers. The summary may not invent a new requirement, weaken a constraint, or replace the detailed sections, wireframe, token summary, replaceability test, or domain calibration.
+
+After the detailed brief is otherwise complete, the main agent checks every summary field against the body. If either omits or contradicts a material commitment in the other, revise both before showing the three-direction set for approval. After approval, the summary is protected by the same whole-file SHA-256 and cannot be edited independently.
+
 ## Ready-to-Use `DESIGN_BRIEF.md` Template
 
 Use this as the complete file structure for every candidate. Sections may be expanded for the actual product, but none may be omitted. Keep the three anti-slop record lines immediately below the title. Record the approved whole-file SHA-256 outside the file so writing the digest cannot change the bytes it authenticates.
@@ -227,6 +246,18 @@ Use this as the complete file structure for every candidate. Sections may be exp
 - Reference manifest: <absolute ARENA_RUN_ROOT/reference-manifest.txt path>
 - Absolute SKILL_ROOT: <absolute path recorded by the main agent>
 - Skill provenance: <Skill commit, NO-GIT/HASHED, or DIRTY-GIT/HASHED>
+
+## User Comparison Summary
+
+- **Direction name:** <Style A/B/C — direction name>
+- **Primary job and audience:** <one primary task for one specific audience>
+- **Aesthetic thesis:** <concise observable proposition and product reason>
+- **First-screen grammar:** <what dominates, what persists, and what is deferred>
+- **Signature element:** <content- or behavior-bearing signature and role>
+- **Intentional risk:** <one bounded risk and its usability boundary>
+- **Anti-default replacement:** <rejected default and structural or behavioral replacement>
+- **Responsive posture:** <how hierarchy and layout transform on narrow screens>
+- **Observable distinctions:** <structural differences from both sibling directions>
 
 ## Product Snapshot
 - Product and subject:
