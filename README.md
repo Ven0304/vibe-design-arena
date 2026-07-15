@@ -8,7 +8,7 @@ Vibe Design Arena is a Codex Skill for high-stakes frontend redesign work. It us
 
 ## What it guarantees
 
-- **Three real directions.** Each candidate starts from the same final `BASE_SHA` on `style-a`, `style-b`, and `style-c`; changing only palette, typography, radius, or dark mode does not qualify.
+- **Three real directions.** Each candidate starts from the same final `BASE_SHA` on `style-a`, `style-b`, and `style-c`; the candidates must differ in information hierarchy, layout grammar, density rhythm, navigation, or interaction posture—not merely in surface styling.
 - **Approval before implementation.** The user sees and approves the complete three `DESIGN_BRIEF.md` files before worktrees are created.
 - **Evidence-bound qualification.** A candidate needs brief integrity, declared validation, automated QA, a main-agent visual review, and a direction-consistency review.
 - **The user chooses.** Qualification establishes eligibility only. It never scores, ranks, or picks the winner.
@@ -115,17 +115,17 @@ python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate
 
 ## Git evolution
 
-| Date (UTC+8) | Commit | Change |
-| --- | --- | --- |
-| 2026-07-12 | `a996ba9` | Initial three-worktree, whole-winner Skill. |
-| 2026-07-14 | `be6ee06` | Added reference-driven design-quality gates. |
-| 2026-07-14 | `8f1d29b` | Added the first design-quality reference library. |
-| 2026-07-14 | `fc73b74` | Isolated domain briefs so builders receive only their assigned direction. |
-| 2026-07-14 | `86c4ea3` | Hardened frozen references, briefs, merge validation, and branch-retention rules. |
-| 2026-07-14 | `f3134b1` | Clarified run records and the approved-brief contract. |
-| 2026-07-15 | `0a553bf` | Added the scripted lifecycle state machine, integrity tools, schemas, and smoke coverage. |
-| 2026-07-15 | `fbd17af` | Added declarative browser QA and the five-gate qualification flow. |
-| 2026-07-15 | `d9125f6` | Refocused the main workflow and moved operational detail into dedicated references. |
+| Commit | Change |
+| --- | --- |
+| `a996ba9` | Initial three-worktree, whole-winner Skill. |
+| `be6ee06` | Added reference-driven design-quality gates. |
+| `8f1d29b` | Added the first design-quality reference library. |
+| `fc73b74` | Isolated domain briefs so builders receive only their assigned direction. |
+| `86c4ea3` | Hardened frozen references, briefs, merge validation, and branch-retention rules. |
+| `f3134b1` | Clarified run records and the approved-brief contract. |
+| `0a553bf` | Added the scripted lifecycle state machine, integrity tools, schemas, and smoke coverage. |
+| `fbd17af` | Added declarative browser QA and the five-gate qualification flow. |
+| `d9125f6` | Refocused the main workflow and moved operational detail into dedicated references. |
 
 ## Contributing
 
