@@ -61,7 +61,7 @@ def _run_spec(spec,cwd):
     return {"executable":str(exe),"args":args,"workingDirectory":wd,"startedAt":started,"completedAt":utc_now(),"exitCode":r.returncode,"status":"PASS" if r.returncode==0 else "FAIL","output":r.stdout.decode("utf-8",errors="replace").rstrip()}
 
 class Controller:
-    """Phase 2 implementation; PowerShell remains canonical."""
+    """Canonical Python controller implementation."""
     def __init__(self,*,schemas=None,git=None,processes=None):self.schemas=schemas or SchemaRegistry();self.git=git or Git();self.processes=processes or ProcessSupervisor()
     def _store(self,p):return StateStore(p,schemas=self.schemas,record_writer=write_derived_records)
     def execute(self,command,options):
@@ -264,7 +264,9 @@ class Controller:
         def mutate(s):
             if s["stage"]!="selected":raise ArenaError("merge requires a selected candidate.")
             if any(_style(s,n)["preview"]["pid"] for n in STYLES):raise ArenaError("Stop all recorded preview processes before merge.")
-            repo=s["repository"]["root"];selected=_style(s,s["selection"]["style"]);self.git.run(repo,("switch",s["repository"]["baseBranch"]));mh=self.git.run(repo,("rev-parse","-q","--verify","MERGE_HEAD"),allow_failure=True)
+            repo=s["repository"]["root"];selected=_style(s,s["selection"]["style"]);mh=self.git.run(repo,("rev-parse","-q","--verify","MERGE_HEAD"),allow_failure=True)
+            if mh.exit_code:self.git.run(repo,("switch",s["repository"]["baseBranch"]))
+            elif self.git.run(repo,("branch","--show-current")).stdout!=s["repository"]["baseBranch"]:raise ArenaError("Merge conflict recovery is not on the recorded base branch.")
             if mh.exit_code==0:
                 conflicts=self.git.run(repo,("diff","--name-only","--diff-filter=U"),allow_failure=True).stdout.splitlines()
                 if conflicts:s["merge"].update({"status":"CONFLICT","conflicts":conflicts});s["status"]="blocked";s["blockingReason"]="Merge conflicts remain. Resolve them, inspect the focused diff with the user, then rerun merge.";return
@@ -291,9 +293,11 @@ class Controller:
         store=self._store(p)
         def clean(s):
             if s["stage"]!="merged" or s["merge"]["status"]!="PASS":raise ArenaError("cleanup requires a verified merged result.")
-            repo=s["repository"]["root"];lines=self.git.run(repo,("worktree","list","--porcelain")).stdout.splitlines();registered=[absolute_path(x[9:]) for x in lines if x.startswith("worktree ")]
+            repo=s["repository"]["root"]
+            lines=self.git.run(repo,("worktree","list","--porcelain")).stdout.splitlines()
+            registered=[absolute_path(x[9:]) for x in lines if x.startswith("worktree ")]
             if len(registered)<4:raise ArenaError("Git worktree registry does not contain the main worktree plus all three candidates.")
-            removed=[]
+            candidates=[]
             for n in STYLES:
                 st=_style(s,n)
                 if st["preview"]["pid"]:raise ArenaError(f"Preview process is still recorded for {n}")
@@ -302,7 +306,11 @@ class Controller:
                 if self.git.run(path,("branch","--show-current")).stdout!=st["branch"]:raise ArenaError(f"Worktree branch mismatch for {n}")
                 dirty=self.git.run(path,("status","--porcelain","--untracked-files=all")).stdout
                 if dirty:raise ArenaError(f"Worktree contains uncommitted or untracked files; refusing cleanup for {n}\n{dirty}")
-                self.git.run(repo,("worktree","remove",str(path)));removed.append(str(path))
+                candidates.append(path)
+            removed=[]
+            for path in candidates:
+                self.git.run(repo,("worktree","remove",str(path)))
+                removed.append(str(path))
             self.git.run(repo,("worktree","prune"))
             for n in STYLES:
                 st=_style(s,n);sha=self.git.run(repo,("rev-parse",st["branch"])).stdout

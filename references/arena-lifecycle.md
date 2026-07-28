@@ -186,7 +186,7 @@ Never publish automatically. Record partial publication per branch.
 For Skill development and regression:
 
 ```console
-python scripts/tests/run_phase3.py
+python scripts/tests/run_controller_tests.py
 python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate.py" "<absolute-skill-root>"
 ```
 

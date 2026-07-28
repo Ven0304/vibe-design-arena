@@ -104,7 +104,7 @@ scripts/tests/                   生命周期与 QA 回归测试
 在仓库根目录运行以下回归校验：
 
 ```console
-python scripts/tests/run_phase3.py
+python scripts/tests/run_controller_tests.py
 python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate.py" "<Skill 根目录绝对路径>"
 ```
 

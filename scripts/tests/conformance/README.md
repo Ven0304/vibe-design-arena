@@ -16,7 +16,7 @@ separated stdout/stderr, normalized diagnostics, and unexpected files for every
 public command/action. Full success and blocking-path traces come from
 `phase1-smoke.ps1` and `controller-differential.ps1`. The cross-platform
 canonical lifecycle and Node QA boundary run from `test_lifecycle_smoke.py`
-through `run_phase3.py`.
+through `run_controller_tests.py`.
 
 Normalization may replace fixture roots, UUIDs, timestamps, PIDs, process
 creation times, ports, and Git commit IDs. It must not replace status, stages,

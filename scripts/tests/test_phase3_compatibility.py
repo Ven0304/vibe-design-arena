@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from phase3_helpers import SKILL_ROOT, git, run, write_text
+from controller_test_helpers import SKILL_ROOT, git, run, write_text
 from test_phase1_foundation import valid_state
 from arena_controller.storage import write_json_atomic
 

@@ -104,7 +104,7 @@ scripts/tests/                   Lifecycle and QA regression coverage
 Run the available regression checks from the repository root:
 
 ```console
-python scripts/tests/run_phase3.py
+python scripts/tests/run_controller_tests.py
 python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate.py" "<absolute skill root>"
 ```
 

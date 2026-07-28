@@ -1,0 +1,289 @@
+{
+  "schemaVersion": "1.0",
+  "stateRevision": 1,
+  "arenaId": "391944905c4140ef9ee45362a2e9d0f4",
+  "stage": "preflight",
+  "status": "blocked",
+  "blockingReason": "Confirm the generated .gitattributes patch, then rerun preflight with -ApplyAttributes. Patch: ${RUN_ROOT}/arena run/records/generated/gitattributes.patch",
+  "createdAt": "2026-07-28T15:43:47.9755533Z",
+  "updatedAt": "2026-07-28T15:43:47.9969808Z",
+  "paths": {
+    "runRoot": "${RUN_ROOT}/arena run",
+    "recordsRoot": "${RUN_ROOT}/arena run/records",
+    "worktreeRoot": "${RUN_ROOT}/arena run/worktrees",
+    "stateFile": "${RUN_ROOT}/arena run/records/arena-state.json",
+    "eventLog": "${RUN_ROOT}/arena run/records/events.jsonl"
+  },
+  "repository": {
+    "root": "${REPOSITORY_ROOT}",
+    "baseBranch": null,
+    "baseSha": null
+  },
+  "skillSnapshot": {
+    "snapshotId": "936db076fe04ed32",
+    "skillRoot": "${SKILL_ROOT}",
+    "gitRoot": "${SKILL_ROOT}",
+    "provenance": "DIRTY-GIT/HASHED",
+    "files": [
+      {
+        "relativePath": "SKILL.md",
+        "absolutePath": "${SKILL_ROOT}/SKILL.md",
+        "sha256": "bce4e36c9a91c7c484bdbe6e4659ef4eb4925bf00145c6eafc9278a749cbb2ea"
+      },
+      {
+        "relativePath": "references/direction-brief.md",
+        "absolutePath": "${SKILL_ROOT}/references/direction-brief.md",
+        "sha256": "05779a9f86ba55dc61f163c9980746be8282f9dadc6cd3daaab14135fa8f285f"
+      },
+      {
+        "relativePath": "references/anti-slop.md",
+        "absolutePath": "${SKILL_ROOT}/references/anti-slop.md",
+        "sha256": "5d23b7f5bc8c194bac97f9916495767afe1c5e42e0931f4b79ff26f6530f8110"
+      },
+      {
+        "relativePath": "references/visual-quality-bar.md",
+        "absolutePath": "${SKILL_ROOT}/references/visual-quality-bar.md",
+        "sha256": "0b8d0cfb109a9c73244afa3f81a6eab4671f845f71d57376fd798469add7abe6"
+      },
+      {
+        "relativePath": "references/interaction-quality-bar.md",
+        "absolutePath": "${SKILL_ROOT}/references/interaction-quality-bar.md",
+        "sha256": "f4482c7870b408d6a3c5265110432629c60b7830468a16529374595f7784cf6d"
+      },
+      {
+        "relativePath": "references/arena-scorecard.md",
+        "absolutePath": "${SKILL_ROOT}/references/arena-scorecard.md",
+        "sha256": "24fa9a959ed1b0ac581d45bbd1ec7efd2bd2dbb93500123c0a4edf299615a31f"
+      }
+    ]
+  },
+  "configuration": {
+    "preview": {},
+    "validation": [],
+    "referenceFiles": [
+      "SKILL.md",
+      "references/direction-brief.md",
+      "references/anti-slop.md",
+      "references/visual-quality-bar.md",
+      "references/interaction-quality-bar.md",
+      "references/arena-scorecard.md"
+    ]
+  },
+  "styles": {
+    "style-a": {
+      "branch": "style-a",
+      "worktree": "${RUN_ROOT}/arena run/worktrees/style-a",
+      "dispatchId": null,
+      "candidateGeneration": 1,
+      "brief": {
+        "frozenPath": null,
+        "approvedSha256": null,
+        "commit": null
+      },
+      "implementationCommit": null,
+      "builderResultPath": null,
+      "qaResultPath": null,
+      "qaResultSha256": null,
+      "preview": {
+        "executable": null,
+        "args": [],
+        "port": null,
+        "url": null,
+        "pid": null,
+        "processStartTimeUtc": null,
+        "stdoutLog": null,
+        "stderrLog": null,
+        "httpStatus": null,
+        "environmentBlocked": false,
+        "lastError": null,
+        "retryCommand": null
+      },
+      "reviews": {
+        "visual": {
+          "status": "PENDING",
+          "reviewer": null,
+          "timestamp": null,
+          "candidateCommit": null,
+          "qaResultSha256": null,
+          "evidenceIds": []
+        },
+        "direction": {
+          "status": "PENDING",
+          "reviewer": null,
+          "timestamp": null,
+          "candidateCommit": null,
+          "qaResultSha256": null,
+          "evidenceIds": []
+        }
+      },
+      "qualification": {
+        "briefIntegrity": "PENDING",
+        "validation": "PENDING",
+        "automatedQa": "PENDING",
+        "mainAgentVisualReview": "PENDING",
+        "directionConsistencyReview": "PENDING",
+        "overall": "PENDING"
+      },
+      "retainedCommit": null
+    },
+    "style-b": {
+      "branch": "style-b",
+      "worktree": "${RUN_ROOT}/arena run/worktrees/style-b",
+      "dispatchId": null,
+      "candidateGeneration": 1,
+      "brief": {
+        "frozenPath": null,
+        "approvedSha256": null,
+        "commit": null
+      },
+      "implementationCommit": null,
+      "builderResultPath": null,
+      "qaResultPath": null,
+      "qaResultSha256": null,
+      "preview": {
+        "executable": null,
+        "args": [],
+        "port": null,
+        "url": null,
+        "pid": null,
+        "processStartTimeUtc": null,
+        "stdoutLog": null,
+        "stderrLog": null,
+        "httpStatus": null,
+        "environmentBlocked": false,
+        "lastError": null,
+        "retryCommand": null
+      },
+      "reviews": {
+        "visual": {
+          "status": "PENDING",
+          "reviewer": null,
+          "timestamp": null,
+          "candidateCommit": null,
+          "qaResultSha256": null,
+          "evidenceIds": []
+        },
+        "direction": {
+          "status": "PENDING",
+          "reviewer": null,
+          "timestamp": null,
+          "candidateCommit": null,
+          "qaResultSha256": null,
+          "evidenceIds": []
+        }
+      },
+      "qualification": {
+        "briefIntegrity": "PENDING",
+        "validation": "PENDING",
+        "automatedQa": "PENDING",
+        "mainAgentVisualReview": "PENDING",
+        "directionConsistencyReview": "PENDING",
+        "overall": "PENDING"
+      },
+      "retainedCommit": null
+    },
+    "style-c": {
+      "branch": "style-c",
+      "worktree": "${RUN_ROOT}/arena run/worktrees/style-c",
+      "dispatchId": null,
+      "candidateGeneration": 1,
+      "brief": {
+        "frozenPath": null,
+        "approvedSha256": null,
+        "commit": null
+      },
+      "implementationCommit": null,
+      "builderResultPath": null,
+      "qaResultPath": null,
+      "qaResultSha256": null,
+      "preview": {
+        "executable": null,
+        "args": [],
+        "port": null,
+        "url": null,
+        "pid": null,
+        "processStartTimeUtc": null,
+        "stdoutLog": null,
+        "stderrLog": null,
+        "httpStatus": null,
+        "environmentBlocked": false,
+        "lastError": null,
+        "retryCommand": null
+      },
+      "reviews": {
+        "visual": {
+          "status": "PENDING",
+          "reviewer": null,
+          "timestamp": null,
+          "candidateCommit": null,
+          "qaResultSha256": null,
+          "evidenceIds": []
+        },
+        "direction": {
+          "status": "PENDING",
+          "reviewer": null,
+          "timestamp": null,
+          "candidateCommit": null,
+          "qaResultSha256": null,
+          "evidenceIds": []
+        }
+      },
+      "qualification": {
+        "briefIntegrity": "PENDING",
+        "validation": "PENDING",
+        "automatedQa": "PENDING",
+        "mainAgentVisualReview": "PENDING",
+        "directionConsistencyReview": "PENDING",
+        "overall": "PENDING"
+      },
+      "retainedCommit": null
+    }
+  },
+  "selection": {
+    "style": null,
+    "branch": null,
+    "selectedAt": null
+  },
+  "merge": {
+    "status": "PENDING",
+    "method": null,
+    "preMergeSha": null,
+    "postMergeSha": null,
+    "conflicts": [],
+    "validation": []
+  },
+  "cleanup": {
+    "completedAt": null,
+    "removedWorktrees": []
+  },
+  "publication": {
+    "main": {
+      "published": false,
+      "remote": null,
+      "remoteSha": null,
+      "publishedAt": null
+    },
+    "style-a": {
+      "published": false,
+      "remote": null,
+      "remoteSha": null,
+      "publishedAt": null
+    },
+    "style-b": {
+      "published": false,
+      "remote": null,
+      "remoteSha": null,
+      "publishedAt": null
+    },
+    "style-c": {
+      "published": false,
+      "remote": null,
+      "remoteSha": null,
+      "publishedAt": null
+    }
+  },
+  "handoff": {
+    "generatedAt": null,
+    "patchPath": null
+  }
+}

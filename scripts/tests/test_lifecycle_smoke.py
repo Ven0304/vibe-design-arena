@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from phase3_helpers import SKILL_ROOT, STYLES, free_ports, git, invoke, qa_result, run, write_json, write_text
+from controller_test_helpers import SKILL_ROOT, STYLES, free_ports, git, invoke, qa_result, run, write_json, write_text
 
 
 class CrossPlatformLifecycleTests(unittest.TestCase):
@@ -67,12 +67,16 @@ class CrossPlatformLifecycleTests(unittest.TestCase):
                 worktree = Path(style["worktree"])
                 self.assertEqual(git(worktree, "rev-parse", "HEAD^"), base_sha)
                 write_text(worktree / "style.txt", f"{name} implementation\n")
-                git(worktree, "add", "--", "style.txt")
+                changed_files = ["style.txt"]
+                if name == "style-a":
+                    write_text(worktree / "app.txt", "style-a conflict side\n")
+                    changed_files.append("app.txt")
+                git(worktree, "add", "--", *changed_files)
                 git(worktree, "commit", "-m", f"Implement {name}")
                 builder = {
                     "schemaVersion": "1.0", "arenaId": state["arenaId"], "style": name, "dispatchId": style["dispatchId"], "candidateGeneration": style["candidateGeneration"],
                     "branch": style["branch"], "briefCommit": style["brief"]["commit"], "briefSha256": style["brief"]["approvedSha256"], "implementationCommit": git(worktree, "rev-parse", "HEAD"),
-                    "validation": {"overall": "PASS", "commands": []}, "changedFiles": ["style.txt"], "risks": [],
+                    "validation": {"overall": "PASS", "commands": []}, "changedFiles": changed_files, "risks": [],
                 }
                 builder_path = results / f"{name}-builder-result.json"
                 write_json(builder_path, builder)
@@ -118,8 +122,26 @@ class CrossPlatformLifecycleTests(unittest.TestCase):
                 self.assertEqual(state["styles"][name]["qualification"]["overall"], "PASS")
             self.assertEqual(state["stage"], "selection-ready")
             state = invoke(state_path, "select", "--expected-revision", str(state["stateRevision"]), "--style", "style-a")  # type: ignore[assignment]
+            write_text(repository / "app.txt", "main conflict side\n")
+            git(repository, "add", "--", "app.txt")
+            git(repository, "commit", "-m", "Advance main with conflicting app change")
+            state = invoke(state_path, "merge", "--expected-revision", str(state["stateRevision"]))  # type: ignore[assignment]
+            self.assertEqual((state["merge"]["status"], state["status"]), ("CONFLICT", "blocked"))
+            self.assertEqual(state["merge"]["conflicts"], ["app.txt"])
+            self.assertTrue(git(repository, "rev-parse", "-q", "--verify", "MERGE_HEAD"))
+            write_text(repository / "app.txt", "user-authorized conflict resolution\n")
+            git(repository, "add", "--", "app.txt")
             state = invoke(state_path, "merge", "--expected-revision", str(state["stateRevision"]))  # type: ignore[assignment]
             self.assertEqual((state["stage"], state["merge"]["status"]), ("merged", "PASS"))
+            dirty_worktree = Path(state["styles"]["style-b"]["worktree"])
+            refusal_marker = dirty_worktree / "ambiguous-user-file.txt"
+            write_text(refusal_marker, "must not be force-removed\n")
+            refusal_revision = state["stateRevision"]
+            refusal = invoke(state_path, "cleanup", "--expected-revision", str(refusal_revision), expect_failure=True)
+            self.assertIn("refusing cleanup for style-b", refusal)
+            self.assertEqual(json.loads(state_path.read_text(encoding="utf-8"))["stateRevision"], refusal_revision)
+            self.assertTrue(all(Path(state["styles"][name]["worktree"]).exists() for name in STYLES))
+            refusal_marker.unlink()
             state = invoke(state_path, "cleanup", "--expected-revision", str(state["stateRevision"]))  # type: ignore[assignment]
             self.assertEqual((state["stage"], state["status"]), ("complete", "complete"))
             for name in STYLES:
