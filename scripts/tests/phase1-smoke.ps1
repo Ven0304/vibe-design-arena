@@ -10,7 +10,7 @@ Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 
 $scriptRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$arenaScript = if ($Runtime -eq 'Python') { Join-Path $scriptRoot 'arena.py' } else { Join-Path $scriptRoot 'arena.ps1' }
+$arenaScript = if ($Runtime -eq 'Python') { Join-Path $scriptRoot 'arena.py' } else { Join-Path $scriptRoot 'arena.phase2.ps1' }
 Import-Module (Join-Path $PSScriptRoot 'Smoke.TestHarness.psm1') -Force
 
 $utf8NoBom = New-Object Text.UTF8Encoding($false)

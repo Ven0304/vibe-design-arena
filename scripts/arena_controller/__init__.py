@@ -1,7 +1,8 @@
-"""Python foundation for the Vibe Design Arena controller.
+"""Canonical Vibe Design Arena controller package.
 
-PowerShell remains the canonical workflow implementation through migration
-Phase 1. The package is intentionally split into testable portability seams.
+The package keeps state, Git, integrity, process, QA, record, and platform
+concerns in explicit portability seams. PowerShell entrypoints are deprecated
+argument-preserving forwarders during the compatibility window.
 """
 
 from .constants import CONTROLLER_COMMANDS, INTEGRITY_ACTIONS, STAGE_ORDER, STYLES

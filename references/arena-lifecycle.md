@@ -1,27 +1,25 @@
 # Arena Lifecycle Command Reference
 
-Use this file when operating `scripts/arena.ps1`. The main Skill defines decisions and gates; this file defines the mechanical interface.
+Use this file when operating the canonical Python controller at `scripts/arena.py`. The main Skill defines decisions and gates; this file defines the mechanical interface.
 
 ## Controller Rules
 
 - Invoke the controller from the loaded `SKILL_ROOT` or use absolute paths.
-- Pass an absolute `-State` path under the durable `ARENA_RUN_ROOT`.
-- Only `arena.ps1` writes state. Do not edit `arena-state.json`.
-- Run `status` before every mutation and pass the latest `stateRevision` as `-ExpectedRevision`.
+- Pass an absolute `--state` path under the durable `ARENA_RUN_ROOT`.
+- Only `arena.py` writes state. Do not edit `arena-state.json`.
+- Run `status` before every mutation and pass the latest `stateRevision` as `--expected-revision`.
 - Keep configuration commands structured as `executable`, `args`, and `environment`; never store a shell command string.
 - Treat nonzero exit as failure. CRLF warnings on Git stderr are not failures when the process exit code is zero.
 
-PowerShell command prefix:
+Canonical command prefix (use the selected approved Python 3.10+ interpreter):
 
-```powershell
-$arena = Join-Path $skillRoot 'scripts\arena.ps1'
-$state = Join-Path $arenaRunRoot 'arena-state.json'
-powershell -ExecutionPolicy Bypass -File $arena status -State $state
+```console
+python scripts/arena.py status --state <absolute-ARENA_RUN_ROOT/records/arena-state.json>
 ```
 
 ## Project Configuration
 
-Provide JSON to `preflight -Config`. Minimal shape:
+Provide JSON to `preflight --config`. Minimal shape:
 
 ```json
 {
@@ -64,25 +62,22 @@ Adapt executables and arguments to the real product. Do not copy this example wi
 
 ### Preflight
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena preflight `
-  -State $state -Repo $repo -SkillRoot $skillRoot -Config $config
+```console
+python scripts/arena.py preflight  --state <state-path> --repo <product-repo> --skill-root <skill-root> --config <arena-config.json>
 ```
 
 If preflight proposes controlled attributes such as the `.worktrees/` ignore rule, show the exact change and obtain user approval before applying:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena preflight `
-  -State $state -ExpectedRevision <revision> -ApplyAttributes
+```console
+python scripts/arena.py preflight  --state <state-path> --expected-revision <revision> --apply-attributes
 ```
 
 ### Create worktrees
 
 After the three frozen briefs have been approved and placed in the controller's expected brief root:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena create-worktrees `
-  -State $state -ExpectedRevision <revision>
+```console
+python scripts/arena.py create-worktrees  --state <state-path> --expected-revision <revision>
 ```
 
 The controller creates all three branches from the recorded final base SHA. Never create only one or two candidates.
@@ -91,21 +86,18 @@ The controller creates all three branches from the recorded final base SHA. Neve
 
 Each builder writes an independent schema-valid result conforming to `scripts/schemas/builder-result.schema.json`.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena import-builder-result `
-  -State $state -ExpectedRevision <revision> -ResultPath <builder-result.json>
+```console
+python scripts/arena.py import-builder-result  --state <state-path> --expected-revision <revision> --result-path <builder-result.json>
 ```
 
 Refresh status and revision after every import. Candidate commit changes invalidate old QA and reviews.
 
 ### Start or stop previews
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena start-previews `
-  -State $state -ExpectedRevision <revision>
+```console
+python scripts/arena.py start-previews  --state <state-path> --expected-revision <revision>
 
-powershell -ExecutionPolicy Bypass -File $arena stop-previews `
-  -State $state -ExpectedRevision <revision>
+python scripts/arena.py stop-previews  --state <state-path> --expected-revision <revision>
 ```
 
 `start-previews` is idempotent and re-probes HTTP readiness. Process identity includes PID and start time. Never kill a process merely because it occupies the same port.
@@ -114,9 +106,8 @@ powershell -ExecutionPolicy Bypass -File $arena stop-previews `
 
 Run the QA runner separately as described in `qa-configuration.md`. Then import its independent result:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena import-qa-result `
-  -State $state -ExpectedRevision <revision> -ResultPath <qa-results.json>
+```console
+python scripts/arena.py import-qa-result  --state <state-path> --expected-revision <revision> --result-path <qa-results.json>
 ```
 
 `PASS`, `FAIL`, and environment `BLOCKED` remain distinct. Importing QA never signs a human review.
@@ -125,29 +116,22 @@ powershell -ExecutionPolicy Bypass -File $arena import-qa-result `
 
 After actually inspecting current screenshots:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena sign-visual-review `
-  -State $state -ExpectedRevision <revision> -Style style-a -Result PASS `
-  -Reviewer <reviewer-id> -CandidateCommit <full-commit> `
-  -EvidenceIds <mobile-id>,<tablet-id>,<desktop-id>
+```console
+python scripts/arena.py sign-visual-review  --state <state-path> --expected-revision <revision> --style style-a --result PASS  --reviewer <reviewer-id> --candidate-commit <full-commit>  --evidence-ids <mobile-id> <tablet-id> <desktop-id>
 ```
 
 After comparing the render with the approved direction:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena sign-direction-review `
-  -State $state -ExpectedRevision <revision> -Style style-a -Result PASS `
-  -Reviewer <reviewer-id> -CandidateCommit <full-commit> `
-  -EvidenceIds <screenshot-id>,<design-brief-id>
+```console
+python scripts/arena.py sign-direction-review  --state <state-path> --expected-revision <revision> --style style-a --result PASS  --reviewer <reviewer-id> --candidate-commit <full-commit>  --evidence-ids <screenshot-id> <design-brief-id>
 ```
 
 Use `FAIL` when evidence does not meet the relevant quality IDs. Do not sign stale commits or unknown evidence IDs.
 
 ### Qualify
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena qualify `
-  -State $state -ExpectedRevision <revision> -Style style-a
+```console
+python scripts/arena.py qualify  --state <state-path> --expected-revision <revision> --style style-a
 ```
 
 Repeat for all three styles. `selection-ready` requires five PASS gates for all three.
@@ -156,12 +140,10 @@ Repeat for all three styles. `selection-ready` requires five PASS gates for all 
 
 Only after the user chooses a complete qualified style:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena select `
-  -State $state -ExpectedRevision <revision> -Style style-a
+```console
+python scripts/arena.py select  --state <state-path> --expected-revision <revision> --style style-a
 
-powershell -ExecutionPolicy Bypass -File $arena merge `
-  -State $state -ExpectedRevision <revision>
+python scripts/arena.py merge  --state <state-path> --expected-revision <revision>
 ```
 
 The merge command recalculates fast-forward versus merge-commit eligibility. Product conflicts remain a user decision.
@@ -170,9 +152,8 @@ The merge command recalculates fast-forward versus merge-commit eligibility. Pro
 
 After post-merge checks pass:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena cleanup `
-  -State $state -ExpectedRevision <revision>
+```console
+python scripts/arena.py cleanup  --state <state-path> --expected-revision <revision>
 ```
 
 Cleanup removes worktrees and retains all three branches. If ordinary removal is blocked by ambiguous files, stop for the user.
@@ -181,16 +162,12 @@ Cleanup removes worktrees and retains all three branches. If ordinary removal is
 
 Publication is optional and separate from local completion:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File $arena publish-plan `
-  -State $state -Remote origin -Branches style-a,style-b,style-c
+```console
+python scripts/arena.py publish-plan  --state <state-path> --remote origin --branches style-a style-b style-c
 
-powershell -ExecutionPolicy Bypass -File $arena publish `
-  -State $state -ExpectedRevision <revision> -Remote origin `
-  -Branches style-a,style-b,style-c -ConfirmPublish
+python scripts/arena.py publish  --state <state-path> --expected-revision <revision> --remote origin  --branches style-a style-b style-c --confirm-publish
 
-powershell -ExecutionPolicy Bypass -File $arena handoff-docs `
-  -State $state -ExpectedRevision <revision>
+python scripts/arena.py handoff-docs  --state <state-path> --expected-revision <revision>
 ```
 
 Never publish automatically. Record partial publication per branch.
@@ -208,10 +185,9 @@ Never publish automatically. Record partial publication per branch.
 
 For Skill development and regression:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\tests\phase1-smoke.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\tests\phase2-smoke.ps1
+```console
+python scripts/tests/run_phase3.py
 python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate.py" "<absolute-skill-root>"
 ```
 
-Also parse every PowerShell file, parse every JSON schema/config, run `node --check scripts/arena-qa.mjs`, run `git diff --check`, scan for dynamic execution, and verify all local links.
+Also parse both PowerShell forwarding shims and retained Phase 2 oracle files, parse every JSON schema/config, run `node --check scripts/arena-qa.mjs`, run `git diff --check`, scan for dynamic execution, and verify all local links.

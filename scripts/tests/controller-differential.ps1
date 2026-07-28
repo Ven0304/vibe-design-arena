@@ -37,7 +37,7 @@ if ([int]$powerShell.finalRevision -ne [int]$python.finalRevision) {
     $differences += [pscustomobject][ordered]@{ decision='TRANSIENT-PREVIEW-001'; field='finalRevision'; powerShell=$powerShell.finalRevision; python=$python.finalRevision; classification='TRANSIENT'; reason='Explicit start-previews retries vary with local HTTP readiness; each successful retry still increments exactly once.' }
 }
 [pscustomobject][ordered]@{
-    status='PASS'; canonicalRuntime='PowerShell'; pythonRuntime='Phase2-noncanonical'; commands=$commandResults
+    status='PASS'; canonicalRuntime='Python'; oracleRuntime='PowerShell-Phase2-legacy'; commands=$commandResults
     normalizedLifecycle=[pscustomobject][ordered]@{ finalStage=$python.finalStage; selected=$python.selected; retainedBranches=$python.retainedBranches; partiallyPublished=$python.partiallyPublished; commandCoverage=$python.commandCoverage; artifactCount=$python.artifactCount; styleWorktreesRemoved=$python.styleWorktreesRemoved; styleBranchesRetained=$python.styleBranchesRetained }
     differences=$differences; powerShellFinalRevision=$powerShell.finalRevision; pythonFinalRevision=$python.finalRevision
 } | ConvertTo-Json -Depth 20

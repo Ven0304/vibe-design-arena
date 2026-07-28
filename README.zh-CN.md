@@ -48,19 +48,13 @@ preflight -> briefs-approved -> worktrees-ready -> building
 
 新建 Arena 时，状态文件必须使用产品仓库之外的绝对路径。只有控制器可以写入 `arena-state.json`。
 
-```powershell
-$skillRoot = "<vibe-design-arena 的绝对路径>"
-$arena = Join-Path $skillRoot 'scripts\arena.ps1'
-$state = "<ARENA_RUN_ROOT 的绝对路径>\records\arena-state.json"
-
-powershell -ExecutionPolicy Bypass -File $arena preflight `
-  -State $state `
-  -Repo "<产品 Git 根目录的绝对路径>" `
-  -SkillRoot $skillRoot `
-  -Config "<结构化的 Arena 配置文件.json>"
+```console
+python scripts/arena.py preflight --state <ARENA_RUN_ROOT绝对路径/records/arena-state.json> --repo <产品Git根目录绝对路径> --skill-root <Skill绝对路径> --config <结构化Arena配置.json>
 ```
 
-每次会改变状态的命令之前，都要先执行 `status`，并将最新的 `stateRevision` 传给 `-ExpectedRevision`。若 preflight 提出 `.gitattributes` 补丁，须先向用户展示确切补丁并取得确认，才能以 `-ApplyAttributes` 重新执行。
+请使用已经选定并获准的 Python 3.10+ 解释器。兼容窗口内，`scripts/arena.ps1` 只把同一组参数转发给 Python，并仅在 stderr 输出一次弃用提示；它不是第二套控制器实现。
+
+每次会改变状态的命令之前，都要先执行 `status`，并将最新的 `stateRevision` 传给 `--expected-revision`。若 preflight 提出 `.gitattributes` 补丁，须先向用户展示确切补丁并取得确认，才能以 `--apply-attributes` 重新执行。
 
 完整命令顺序、配置格式、恢复规则和发布行为见 [references/arena-lifecycle.md](references/arena-lifecycle.md)。
 
@@ -92,8 +86,10 @@ powershell -ExecutionPolicy Bypass -File $arena preflight `
 SKILL.md                         工作流合同与职责划分
 references/                      设计标准和操作指南
 references/domain-packs/         领域专属校准材料
-scripts/arena.ps1                有状态的 Arena 控制器
-scripts/arena-integrity.ps1      快照与 brief 完整性工具
+scripts/arena.py                 canonical 有状态 Arena 控制器
+scripts/arena_integrity.py       canonical 快照与 brief 完整性工具
+scripts/arena.ps1                已弃用的 Python 参数转发入口
+scripts/arena-integrity.ps1      已弃用的完整性转发入口
 scripts/arena-qa.mjs             声明式 Playwright 与 axe QA 执行器
 scripts/schemas/                 状态、builder 结果和 QA 合同
 scripts/tests/                   生命周期与 QA 回归测试
@@ -101,15 +97,14 @@ scripts/tests/                   生命周期与 QA 回归测试
 
 ## 依赖与验证
 
-- 生命周期控制器需要 Git 与 PowerShell。
+- 生命周期控制器需要 Git、Python 3.10+ 以及 `requirements-controller.txt` 中的依赖；依赖只安装在获准的 Skill/工具环境。
 - 内置 QA 执行器和单元测试需要 Node.js。
 - 只有要获得自动化 QA 的 `PASS` 时，才需要 Playwright（或 `playwright-core`）、`axe-core` 和 Chromium 运行时；它们绝不会被自动安装。
 
 在仓库根目录运行以下回归校验：
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\tests\phase1-smoke.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\tests\phase2-smoke.ps1
+```console
+python scripts/tests/run_phase3.py
 python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate.py" "<Skill 根目录绝对路径>"
 ```
 

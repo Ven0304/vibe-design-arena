@@ -26,7 +26,7 @@ class ContractFreezeTests(unittest.TestCase):
         )
 
     def test_public_command_sets_match_oracles_and_python(self) -> None:
-        controller_text = (SCRIPT_ROOT / "arena.ps1").read_text(encoding="utf-8")
+        controller_text = (SCRIPT_ROOT / "arena.phase2.ps1").read_text(encoding="utf-8")
         match = re.search(
             r"ValidateSet\((.*?)\)\]\s*\[string\]\$Command",
             controller_text,
@@ -37,7 +37,7 @@ class ContractFreezeTests(unittest.TestCase):
         self.assertEqual(tuple(self.contract["controllerCommands"]), powershell_commands)
         self.assertEqual(CONTROLLER_COMMANDS, powershell_commands)
 
-        integrity_text = (SCRIPT_ROOT / "arena-integrity.ps1").read_text(encoding="utf-8")
+        integrity_text = (SCRIPT_ROOT / "arena-integrity.phase2.ps1").read_text(encoding="utf-8")
         match = re.search(
             r"ValidateSet\((.*?)\)\]\s*\[string\]\$Action",
             integrity_text,

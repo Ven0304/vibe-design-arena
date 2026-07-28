@@ -7,8 +7,8 @@ param(
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 $scriptRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..')).Path
-$controller = Join-Path $scriptRoot 'arena.ps1'
-$integrity = Join-Path $scriptRoot 'arena-integrity.ps1'
+$controller = Join-Path $scriptRoot 'arena.phase2.ps1'
+$integrity = Join-Path $scriptRoot 'arena-integrity.phase2.ps1'
 $powershell = (Get-Command powershell.exe -ErrorAction Stop).Source
 $fixtureRoot = Join-Path ([IO.Path]::GetFullPath($BaseRoot)) ('vda-contract-' + [Guid]::NewGuid().ToString('N').Substring(0,8))
 [IO.Directory]::CreateDirectory($fixtureRoot) | Out-Null

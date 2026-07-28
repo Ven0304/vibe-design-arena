@@ -75,7 +75,7 @@ Resolve every reference from the loaded `SKILL_ROOT`, not from the product workt
 
 ## State Authority
 
-`scripts/arena.ps1` is the only writer of `arena-state.json`. Do not bypass it, patch state manually, or treat chat history as state.
+`scripts/arena.py` is the only writer of `arena-state.json`. The deprecated `.ps1` entrypoint only forwards its argv to Python and never writes state itself. Do not bypass it, patch state manually, or treat chat history as state.
 
 Every mutating command requires the latest `stateRevision`. Refresh status immediately before mutation. A revision mismatch is a concurrency signal: reread status and reassess instead of retrying blindly.
 

@@ -48,19 +48,13 @@ This repository is a Codex Skill rather than a package to install. Load it from 
 
 For a new Arena run, use an absolute state path outside the product repository. The controller is the only permitted writer of `arena-state.json`.
 
-```powershell
-$skillRoot = "<absolute path to vibe-design-arena>"
-$arena = Join-Path $skillRoot 'scripts\arena.ps1'
-$state = "<absolute ARENA_RUN_ROOT>\records\arena-state.json"
-
-powershell -ExecutionPolicy Bypass -File $arena preflight `
-  -State $state `
-  -Repo "<absolute product Git root>" `
-  -SkillRoot $skillRoot `
-  -Config "<structured arena configuration.json>"
+```console
+python scripts/arena.py preflight --state <absolute-ARENA_RUN_ROOT/records/arena-state.json> --repo <absolute-product-Git-root> --skill-root <absolute-skill-root> --config <structured-arena-config.json>
 ```
 
-Before every mutating command, run `status` and pass its current `stateRevision` as `-ExpectedRevision`. If preflight proposes a `.gitattributes` patch, show the exact patch to the user and obtain approval before rerunning with `-ApplyAttributes`.
+Use the selected approved Python 3.10+ interpreter. During the compatibility window, `scripts/arena.ps1` forwards the same arguments to Python and emits one deprecation warning on stderr; it is not a second controller implementation.
+
+Before every mutating command, run `status` and pass its current `stateRevision` as `--expected-revision`. If preflight proposes a `.gitattributes` patch, show the exact patch to the user and obtain approval before rerunning with `--apply-attributes`.
 
 The full command sequence, configuration shape, recovery rules, and publication behavior live in [references/arena-lifecycle.md](references/arena-lifecycle.md).
 
@@ -92,8 +86,10 @@ The reference library exists to make the three options difficult to choose betwe
 SKILL.md                         Workflow contract and responsibility split
 references/                      Design standards and operating guides
 references/domain-packs/         Domain-specific calibration
-scripts/arena.ps1                Stateful Arena controller
-scripts/arena-integrity.ps1      Snapshot and brief-integrity utility
+scripts/arena.py                 Canonical stateful Arena controller
+scripts/arena_integrity.py       Canonical snapshot and brief-integrity utility
+scripts/arena.ps1                Deprecated argument-preserving Python forwarder
+scripts/arena-integrity.ps1      Deprecated integrity forwarder
 scripts/arena-qa.mjs             Declarative Playwright and axe QA runner
 scripts/schemas/                 State, builder result, and QA contracts
 scripts/tests/                   Lifecycle and QA regression coverage
@@ -101,15 +97,14 @@ scripts/tests/                   Lifecycle and QA regression coverage
 
 ## Requirements and verification
 
-- Git and PowerShell are required for the lifecycle controller.
+- Git, Python 3.10+, and the packages in `requirements-controller.txt` are required for the lifecycle controller; dependencies are installed only in an approved Skill/tool environment.
 - Node.js is required for the bundled QA runner and its unit test.
 - Playwright (or `playwright-core`), `axe-core`, and a Chromium runtime are required only to obtain an automated-QA `PASS`. They are never installed automatically.
 
 Run the available regression checks from the repository root:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\tests\phase1-smoke.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\tests\phase2-smoke.ps1
+```console
+python scripts/tests/run_phase3.py
 python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate.py" "<absolute skill root>"
 ```
 

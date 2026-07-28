@@ -1,7 +1,7 @@
 {
   "formatVersion": "1.0",
-  "oracle": "scripts/arena.ps1",
-  "integrityOracle": "scripts/arena-integrity.ps1",
+  "oracle": "scripts/arena.phase2.ps1",
+  "integrityOracle": "scripts/arena-integrity.phase2.ps1",
   "schemaVersion": "1.0",
   "styles": ["style-a", "style-b", "style-c"],
   "stageOrder": ["preflight", "briefs-approved", "worktrees-ready", "building", "previews-ready", "qualifying", "selection-ready", "selected", "merged", "cleaned", "complete"],

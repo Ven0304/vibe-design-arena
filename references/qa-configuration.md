@@ -170,7 +170,7 @@ browser-errors.jsonl
 screenshots/*.png
 ```
 
-The runner writes artifacts only. Import with `arena.ps1 import-qa-result`; never copy fields into `arena-state.json` manually.
+The runner writes artifacts only. Import with `python scripts/arena.py import-qa-result`; never copy fields into `arena-state.json` manually. The deprecated `scripts/arena.ps1` entry remains only as an argument-preserving Python forwarder during the compatibility window.
 
 ## PASS Contract
 
