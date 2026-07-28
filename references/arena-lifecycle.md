@@ -190,4 +190,4 @@ python scripts/tests/run_controller_tests.py
 python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate.py" "<absolute-skill-root>"
 ```
 
-Also parse both PowerShell forwarding shims and retained Phase 2 oracle files, parse every JSON schema/config, run `node --check scripts/arena-qa.mjs`, run `git diff --check`, scan for dynamic execution, and verify all local links.
+Also parse every Python source file and JSON schema/config, run `node --check scripts/arena-qa.mjs`, run `git diff --check`, assert that no `.ps1` or `.psm1` remains under `scripts/`, scan for dynamic execution, and verify all local links.

@@ -52,7 +52,7 @@ For a new Arena run, use an absolute state path outside the product repository. 
 python scripts/arena.py preflight --state <absolute-ARENA_RUN_ROOT/records/arena-state.json> --repo <absolute-product-Git-root> --skill-root <absolute-skill-root> --config <structured-arena-config.json>
 ```
 
-Use the selected approved Python 3.10+ interpreter. During the compatibility window, `scripts/arena.ps1` forwards the same arguments to Python and emits one deprecation warning on stderr; it is not a second controller implementation.
+Use the selected approved Python 3.10+ interpreter. PowerShell launchers were retired after the two-release compatibility window; use the Python commands directly. The last shim-supported release was [`controller-python-v1.0.1-shim`](https://github.com/Ven0304/vibe-design-arena/releases/tag/controller-python-v1.0.1-shim). See the [retirement handoff](references/controller-python-retirement.md).
 
 Before every mutating command, run `status` and pass its current `stateRevision` as `--expected-revision`. If preflight proposes a `.gitattributes` patch, show the exact patch to the user and obtain approval before rerunning with `--apply-attributes`.
 
@@ -88,8 +88,6 @@ references/                      Design standards and operating guides
 references/domain-packs/         Domain-specific calibration
 scripts/arena.py                 Canonical stateful Arena controller
 scripts/arena_integrity.py       Canonical snapshot and brief-integrity utility
-scripts/arena.ps1                Deprecated argument-preserving Python forwarder
-scripts/arena-integrity.ps1      Deprecated integrity forwarder
 scripts/arena-qa.mjs             Declarative Playwright and axe QA runner
 scripts/schemas/                 State, builder result, and QA contracts
 scripts/tests/                   Lifecycle and QA regression coverage

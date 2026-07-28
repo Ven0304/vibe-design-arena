@@ -1,28 +1,9 @@
-# Controller Conformance Fixtures
+# Controller Conformance Contract
 
-Phase 0 froze the PowerShell controller as the temporary behavioral oracle. In
-Phase 3, Python is the canonical runtime; the retained `arena.phase2.ps1` and
-`arena-integrity.phase2.ps1` files are historical Phase 2 oracles used only for
-compatibility and differential evidence. Public `.ps1` entries are deprecated,
-argument-preserving Python forwarders.
+Python is the sole controller runtime after Phase 5. `controller-contract.json` is the reviewable contract manifest for the 16 controller commands, four integrity actions, state order, schema hashes, authorization boundaries, side-effect classes, and trace-normalization rules.
 
-`controller-contract.json` is the reviewable contract manifest. It freezes the
-16 controller commands, four integrity actions, state order, schema hashes,
-authorization boundaries, side-effect classes, and trace-normalization rules.
+Run `python scripts/tests/run_controller_tests.py` for the permanent conformance suite. It covers storage, locking, Git lifecycle behavior, process identity, schema validation, all public fail-closed entrypoints, the complete three-candidate lifecycle, legacy-state resume, retirement fault injection, and the retained Node QA contract.
 
-`capture-powershell-traces.ps1` is a Windows black-box capture tool against the
-retained Phase 2 oracle. It records argv, fixture preconditions, exit code,
-separated stdout/stderr, normalized diagnostics, and unexpected files for every
-public command/action. Full success and blocking-path traces come from
-`phase1-smoke.ps1` and `controller-differential.ps1`. The cross-platform
-canonical lifecycle and Node QA boundary run from `test_lifecycle_smoke.py`
-through `run_controller_tests.py`.
+`fixtures/legacy-powershell-preflight-state-v1.json` is a normalized historical artifact, not an executable oracle. It proves that Python can resume a schema `1.0` state written by the retired controller without conversion. Machine paths are replaced only by declared fixture tokens.
 
-Normalization may replace fixture roots, UUIDs, timestamps, PIDs, process
-creation times, ports, and Git commit IDs. It must not replace status, stages,
-revision deltas, branch names, error categories, relative artifact locations,
-or file hashes.
-
-Do not use the historical oracle as authority to reproduce a newly discovered
-unsafe PowerShell bug. Classify each difference as PARITY, BUGFIX, PLATFORM,
-NON-CONTRACTUAL, or TRANSIENT, with an explicit reason.
+The migration-era difference record remains in [controller-compatibility-decisions.md](controller-compatibility-decisions.md). It classifies reviewed differences as PARITY, BUGFIX, PLATFORM, NON-CONTRACTUAL, or TRANSIENT and records the tests that prevent unsafe legacy behavior from returning.

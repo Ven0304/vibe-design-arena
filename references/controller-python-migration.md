@@ -1,8 +1,8 @@
 # Controller Python Migration Design
 
-> Status: design proposal; no controller behavior changes are authorized by this document.
+> Status: implemented through Phase 5. See the [retirement handoff](controller-python-retirement.md) for the final runtime and release evidence.
 >
-> Scope: migrate the stateful PowerShell controller and its PowerShell test harness to Python while retaining the Node-based browser QA runner.
+> Historical scope: migrate the stateful PowerShell controller and its PowerShell test harness to Python while retaining the Node-based browser QA runner.
 
 ## Contents
 

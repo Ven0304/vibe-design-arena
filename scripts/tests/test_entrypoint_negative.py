@@ -8,8 +8,10 @@ import unittest
 from pathlib import Path
 
 SCRIPT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(SCRIPT_ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from arena_controller.constants import CONTROLLER_COMMANDS, INTEGRITY_ACTIONS
 from run_controller_tests import run_node
 
 
@@ -25,12 +27,14 @@ class EntrypointNegativeTests(unittest.TestCase):
             missing = root / "records" / "arena-state.json"
             malformed = root / "malformed.json"
             malformed.write_text("not-json\n", encoding="utf-8")
-            cases = (
-                (sys.executable, str(SCRIPT_ROOT / "arena.py"), "status", "--state", str(missing)),
-                (sys.executable, str(SCRIPT_ROOT / "arena.py"), "preflight", "--state", str(missing)),
-                (sys.executable, str(SCRIPT_ROOT / "arena.py"), "start-previews", "--state", str(missing)),
+            cases = tuple(
+                (sys.executable, str(SCRIPT_ROOT / "arena.py"), command, "--state", str(missing))
+                for command in CONTROLLER_COMMANDS
+            ) + tuple(
+                (sys.executable, str(SCRIPT_ROOT / "arena_integrity.py"), action)
+                for action in INTEGRITY_ACTIONS
+            ) + (
                 (sys.executable, str(SCRIPT_ROOT / "arena.py"), "status", "--state", str(malformed)),
-                (sys.executable, str(SCRIPT_ROOT / "arena_integrity.py"), "normalize-brief"),
                 (sys.executable, str(SCRIPT_ROOT / "arena_integrity.py"), "not-an-action"),
             )
             for argv in cases:
@@ -41,24 +45,18 @@ class EntrypointNegativeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="vda-node-negative-") as temporary:
             root = Path(temporary)
             fixtures = {
-                "nonzero.mjs": "process.exit(23);\n",
-                "empty.mjs": "\n",
+                "nonzero.mjs": "process.exit(23);\n", "empty.mjs": "\n",
                 "fail.mjs": "process.stdout.write(JSON.stringify({status:'FAIL'}));\n",
                 "invalid.mjs": "process.stdout.write('not-json');\n",
                 "array.mjs": "process.stdout.write(JSON.stringify(['PASS']));\n",
             }
             for name, source in fixtures.items():
                 (root / name).write_text(source, encoding="utf-8", newline="\n")
-            with self.assertRaises(SystemExit):
-                run_node(root / "nonzero.mjs")
-            with self.assertRaises(json.JSONDecodeError):
-                run_node(root / "empty.mjs")
-            with self.assertRaises(SystemExit):
-                run_node(root / "fail.mjs")
-            with self.assertRaises(json.JSONDecodeError):
-                run_node(root / "invalid.mjs")
-            with self.assertRaises(SystemExit):
-                run_node(root / "array.mjs")
+            with self.assertRaises(SystemExit): run_node(root / "nonzero.mjs")
+            with self.assertRaises(json.JSONDecodeError): run_node(root / "empty.mjs")
+            with self.assertRaises(SystemExit): run_node(root / "fail.mjs")
+            with self.assertRaises(json.JSONDecodeError): run_node(root / "invalid.mjs")
+            with self.assertRaises(SystemExit): run_node(root / "array.mjs")
 
 
 if __name__ == "__main__":

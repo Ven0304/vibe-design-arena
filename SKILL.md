@@ -75,7 +75,7 @@ Resolve every reference from the loaded `SKILL_ROOT`, not from the product workt
 
 ## State Authority
 
-`scripts/arena.py` is the only writer of `arena-state.json`. The deprecated `.ps1` entrypoint only forwards its argv to Python and never writes state itself. Do not bypass it, patch state manually, or treat chat history as state.
+`scripts/arena.py` is the only writer of `arena-state.json`. The PowerShell compatibility shims have been retired; do not bypass the Python controller, patch state manually, or treat chat history as state.
 
 Every mutating command requires the latest `stateRevision`. Refresh status immediately before mutation. A revision mismatch is a concurrency signal: reread status and reassess instead of retrying blindly.
 
@@ -144,7 +144,7 @@ Applicability has three distinct meanings:
 - `applicable`: a product-state test that the product can produce;
 - `not-applicable`: a reviewed declaration with `reason`, `approvedBy`, and `evidenceIds`.
 
-Never infer N/A automatically. Use only whitelisted actions and assertions. No `eval`, arbitrary JavaScript, shell strings, or dynamic PowerShell execution.
+Never infer N/A automatically. Use only whitelisted actions and assertions. No `eval`, arbitrary JavaScript, shell strings, or dynamic shell execution.
 
 The `equivalent-200-percent-layout` check is an automated proxy using a halved CSS viewport with `deviceScaleFactor=1`. It is not a claim that Chrome UI zoom was tested at 200 percent.
 
