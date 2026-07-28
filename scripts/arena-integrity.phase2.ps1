@@ -16,7 +16,7 @@ param(
 
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
-Import-Module Microsoft.PowerShell.Utility -ErrorAction Stop
+Import-Module Microsoft.PowerShell.Utility -Global -ErrorAction Stop
 Import-Module (Join-Path $PSScriptRoot 'lib\Arena.Core.psm1') -Force
 
 function Emit-IntegrityResult {
