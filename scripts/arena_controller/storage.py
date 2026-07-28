@@ -144,12 +144,14 @@ class StateStore:
             if self.state_path.exists():
                 raise ArenaError(f"Arena state already exists: {self.state_path}")
             candidate = copy.deepcopy(state)
+            candidate["stateRevision"] = 1
+            candidate["updatedAt"] = utc_now()
             self.schemas.validate("state", candidate)
             write_json_atomic(self.state_path, candidate)
             append_event(
                 self.state_path,
                 operation,
-                "success",
+                "blocked" if candidate.get("status") == "blocked" else "success",
                 revision=int(candidate["stateRevision"]),
             )
             if self.record_writer:
@@ -162,7 +164,7 @@ class StateStore:
         operation: str,
         expected_revision: int,
         mutation: Callable[[dict[str, Any]], None],
-        outcome: str = "success",
+        outcome: str | None = None,
         message: str = "",
         details: Any = None,
     ) -> dict[str, Any]:
@@ -182,7 +184,7 @@ class StateStore:
             append_event(
                 self.state_path,
                 operation,
-                outcome,
+                outcome or ("blocked" if candidate.get("status") == "blocked" else "success"),
                 revision=int(candidate["stateRevision"]),
                 message=message,
                 details=details,

@@ -1,19 +1,22 @@
 [CmdletBinding()]
 param(
     [string]$BaseRoot = 'C:\tmp',
-    [switch]$KeepArtifacts
+    [switch]$KeepArtifacts,
+    [ValidateSet('PowerShell','Python')][string]$Runtime = 'PowerShell',
+    [string]$PythonExecutable = 'python.exe'
 )
 
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 
 $scriptRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
-$arenaScript = Join-Path $scriptRoot 'arena.ps1'
+$arenaScript = if ($Runtime -eq 'Python') { Join-Path $scriptRoot 'arena.py' } else { Join-Path $scriptRoot 'arena.ps1' }
 Import-Module (Join-Path $PSScriptRoot 'Smoke.TestHarness.psm1') -Force
 
 $utf8NoBom = New-Object Text.UTF8Encoding($false)
 $succeeded = $false
 $finalResult = $null
+$invokedCommands = @()
 
 function Assert-True {
     param([bool]$Condition, [string]$Message)
@@ -39,16 +42,17 @@ function Invoke-TestGit {
 
 function Invoke-ArenaProcess {
     param([string]$Command, [string[]]$Additional = @(), [switch]$ExpectFailure)
-    if ($ExpectFailure) {
+    $script:invokedCommands += $Command
+    if ($Runtime -eq 'Python') {
+        $arguments = @($arenaScript, $Command, '-State', $statePath) + $Additional
+        $previousPreference = $ErrorActionPreference
+        try { $ErrorActionPreference = 'Continue'; $output = @(& $PythonExecutable @arguments 2>&1); $exitCode = $LASTEXITCODE }
+        finally { $ErrorActionPreference = $previousPreference }
+    } elseif ($ExpectFailure) {
         $arguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $arenaScript, $Command, '-State', $statePath) + $Additional
         $previousPreference = $ErrorActionPreference
-        try {
-            $ErrorActionPreference = 'Continue'
-            $output = @(& powershell.exe @arguments 2>&1)
-            $exitCode = $LASTEXITCODE
-        } finally {
-            $ErrorActionPreference = $previousPreference
-        }
+        try { $ErrorActionPreference = 'Continue'; $output = @(& powershell.exe @arguments 2>&1); $exitCode = $LASTEXITCODE }
+        finally { $ErrorActionPreference = $previousPreference }
     } else {
         $boundParameters = @{ State = $statePath }
         for ($i = 0; $i -lt $Additional.Count; $i++) {
@@ -57,33 +61,20 @@ function Invoke-ArenaProcess {
             $key = $token.TrimStart('-')
             if ($key -in @('EvidenceIds','Branches')) {
                 $values = @()
-                while ($i + 1 -lt $Additional.Count -and -not ([string]$Additional[$i + 1]).StartsWith('-')) {
-                    $values += $Additional[$i + 1]
-                    $i++
-                }
+                while ($i + 1 -lt $Additional.Count -and -not ([string]$Additional[$i + 1]).StartsWith('-')) { $values += $Additional[$i + 1]; $i++ }
                 if ($values.Count -eq 0) { throw "$key requires at least one value." }
                 $boundParameters[$key] = $values
-            } elseif ($i + 1 -lt $Additional.Count -and -not ([string]$Additional[$i + 1]).StartsWith('-')) {
-                $boundParameters[$key] = $Additional[$i + 1]
-                $i++
-            } else {
-                $boundParameters[$key] = $true
-            }
+            } elseif ($i + 1 -lt $Additional.Count -and -not ([string]$Additional[$i + 1]).StartsWith('-')) { $boundParameters[$key] = $Additional[$i + 1]; $i++ }
+            else { $boundParameters[$key] = $true }
         }
-        try {
-            $output = @(& $arenaScript $Command @boundParameters)
-        } catch {
-            throw "Arena command '$Command' failed: $($_.Exception.Message)"
-        }
+        try { $output = @(& $arenaScript $Command @boundParameters); $exitCode = 0 }
+        catch { throw "Arena command '$Command' failed: $($_.Exception.Message)" }
     }
     $text = (($output | ForEach-Object { [string]$_ }) -join "`n").Trim()
-    if ($ExpectFailure) {
-        Assert-True ($exitCode -ne 0) "$Command was expected to fail. Output: $text"
-        return $text
-    }
+    if ($ExpectFailure) { Assert-True ($exitCode -ne 0) "$Command was expected to fail. Output: $text"; return $text }
+    if ($exitCode -ne 0) { throw "Arena command '$Command' failed: $text" }
     return ConvertFrom-SmokeJson -Output $output -Description "Arena command '$Command'"
 }
-
 function New-TestQaResult {
     param($ArenaState, [string]$StyleName)
     $styleState = $ArenaState.styles.PSObject.Properties[$StyleName].Value
@@ -151,7 +142,7 @@ function Get-FreePort {
 
 $baseAbsolute = [IO.Path]::GetFullPath($BaseRoot).TrimEnd('\')
 [IO.Directory]::CreateDirectory($baseAbsolute) | Out-Null
-$name = 'vda-phase1-中文 & long-segment-' + ('x' * 48) + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 8)
+$name = 'vda-phase1-' + $Runtime.ToLowerInvariant() + '-中文 & long-segment-' + ('x' * 48) + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 8)
 $testRoot = Join-Path $baseAbsolute $name
 $testRootAbsolute = [IO.Path]::GetFullPath($testRoot)
 Assert-True ($testRootAbsolute.StartsWith($baseAbsolute + '\', [StringComparison]::OrdinalIgnoreCase)) 'Test root escaped BaseRoot.'
@@ -430,6 +421,8 @@ server.listen(port, '127.0.0.1');
     Assert-True (@(Get-ChildItem -LiteralPath $recordsRoot -Filter '*.tmp' -Recurse -Force).Count -eq 0) 'Atomic state writes left temporary files.'
     Assert-True ((Get-Content -LiteralPath (Join-Path $recordsRoot 'events.jsonl') -Encoding utf8).Count -ge 10) 'Event log is unexpectedly incomplete.'
 
+    $events = @(Get-Content -LiteralPath (Join-Path $recordsRoot 'events.jsonl') -Encoding utf8 | ForEach-Object { $_ | ConvertFrom-Json })
+    $artifactRelativePaths = @(Get-ChildItem -LiteralPath $recordsRoot -File -Recurse | ForEach-Object { $_.FullName.Substring($recordsRoot.Length + 1).Replace('\','/') } | Sort-Object)
     $finalResult = [pscustomobject][ordered]@{
         status = 'PASS'
         testRoot = $testRootAbsolute
@@ -438,6 +431,12 @@ server.listen(port, '127.0.0.1');
         selected = $state.selection.style
         retainedBranches = @('style-a', 'style-b', 'style-c')
         partiallyPublished = 'style-b'
+        commandCoverage = @($invokedCommands | Sort-Object -Unique)
+        eventCommandCoverage = @($events.command | Sort-Object -Unique)
+        artifactRelativePaths = $artifactRelativePaths
+        artifactCount = $artifactRelativePaths.Count
+        styleWorktreesRemoved = $true
+        styleBranchesRetained = $true
     }
     $succeeded = $true
 } finally {

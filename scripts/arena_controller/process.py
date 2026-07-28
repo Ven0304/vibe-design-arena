@@ -101,7 +101,9 @@ class ProcessSupervisor:
             actual_cwd = absolute_path(process.cwd(), must_exist=True)
             expected_cwd = absolute_path(expected.workingDirectory, must_exist=True)
             cmdline = process.cmdline()
-        except (psutil.NoSuchProcess, psutil.AccessDenied, OSError) as exc:
+        except psutil.NoSuchProcess as exc:
+            raise ArenaError("Recorded preview process is no longer running.") from exc
+        except (psutil.AccessDenied, OSError) as exc:
             raise ArenaError(f"Recorded preview process identity cannot be verified: {exc}") from exc
         if abs(actual_create - expected.processStartTimeUtc) > 0.01:
             raise ArenaError("Recorded preview PID has been reused; creation time differs.")

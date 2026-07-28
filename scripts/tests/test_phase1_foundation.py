@@ -8,6 +8,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from dataclasses import replace
 
 SCRIPT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SCRIPT_ROOT))
@@ -207,6 +208,28 @@ class FoundationTests(unittest.TestCase):
             parsed = json.loads(completed.stdout.decode("utf-8"))
             self.assertEqual(parsed["styles"]["style-a"]["preview"]["lastError"], "\ue15f")
 
+    def test_process_stop_refuses_mismatched_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            supervisor = ProcessSupervisor()
+            identity = supervisor.start(
+                sys.executable,
+                ("-c", "import time; time.sleep(60)"),
+                working_directory=root,
+                environment={},
+                stdout_path=root / "stdout-mismatch.log",
+                stderr_path=root / "stderr-mismatch.log",
+            )
+            try:
+                with self.assertRaises(ArenaError):
+                    supervisor.stop(replace(identity, executable="definitely-not-python.exe"))
+                supervisor.verify(identity)
+                supervisor.stop(identity, graceful_timeout=2.0)
+            finally:
+                try:
+                    os.kill(identity.pid, 9)
+                except OSError:
+                    pass
     def test_process_stop_requires_full_verified_identity(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
