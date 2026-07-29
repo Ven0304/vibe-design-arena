@@ -3,7 +3,7 @@ name: Controller Contract
 on:
   push:
     branches:
-      - codex/python-controller-phase0-1
+      - main
   pull_request:
   workflow_dispatch:
 

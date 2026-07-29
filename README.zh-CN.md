@@ -52,7 +52,7 @@ preflight -> briefs-approved -> worktrees-ready -> building
 python scripts/arena.py preflight --state <ARENA_RUN_ROOT绝对路径/records/arena-state.json> --repo <产品Git根目录绝对路径> --skill-root <Skill绝对路径> --config <结构化Arena配置.json>
 ```
 
-请使用已经选定并获准的 Python 3.10+ 解释器。PowerShell 启动入口已在两个版本的兼容窗口后退役，请直接使用 Python 命令。最后支持 shim 的版本是 [`controller-python-v1.0.1-shim`](https://github.com/Ven0304/vibe-design-arena/releases/tag/controller-python-v1.0.1-shim)，详见[退役交接说明](references/controller-python-retirement.md)。
+请使用已经选定并获准的 Python 3.10+ 解释器。本 Skill 现已提供独立的 Python 控制器，不再包含 PowerShell 运行时或启动入口；Node.js 仅保留在独立的浏览器 QA 边界中。
 
 每次会改变状态的命令之前，都要先执行 `status`，并将最新的 `stateRevision` 传给 `--expected-revision`。若 preflight 提出 `.gitattributes` 补丁，须先向用户展示确切补丁并取得确认，才能以 `--apply-attributes` 重新执行。
 
@@ -88,6 +88,7 @@ references/                      设计标准和操作指南
 references/domain-packs/         领域专属校准材料
 scripts/arena.py                 canonical 有状态 Arena 控制器
 scripts/arena_integrity.py       canonical 快照与 brief 完整性工具
+scripts/arena_controller/        模块化控制器实现
 scripts/arena-qa.mjs             声明式 Playwright 与 axe QA 执行器
 scripts/schemas/                 状态、builder 结果和 QA 合同
 scripts/tests/                   生命周期与 QA 回归测试
@@ -119,6 +120,11 @@ python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate
 | `0a553bf` | 加入脚本化生命周期状态机、完整性工具、schema 与 smoke 覆盖。 |
 | `fbd17af` | 加入声明式浏览器 QA 和五门资格审查流程。 |
 | `d9125f6` | 聚焦主工作流，并将操作细节拆入独立参考文档。 |
+| `de582ab` | 加入 Python 控制器基础与冻结的兼容性契约。 |
+| `5e60a34` | 实现全部命令与 PowerShell 行为基准的 Python 对等。 |
+| `2bbd727` | 在操作文档中将 Python 设为 canonical 控制器。 |
+| `dee56a0` | 完成两个版本的兼容窗口与退役门槛。 |
+| `18113f2` | 退役 PowerShell 运行时，使 Python 成为唯一控制器实现。 |
 
 ## 贡献
 

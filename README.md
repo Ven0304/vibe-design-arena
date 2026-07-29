@@ -52,7 +52,7 @@ For a new Arena run, use an absolute state path outside the product repository. 
 python scripts/arena.py preflight --state <absolute-ARENA_RUN_ROOT/records/arena-state.json> --repo <absolute-product-Git-root> --skill-root <absolute-skill-root> --config <structured-arena-config.json>
 ```
 
-Use the selected approved Python 3.10+ interpreter. PowerShell launchers were retired after the two-release compatibility window; use the Python commands directly. The last shim-supported release was [`controller-python-v1.0.1-shim`](https://github.com/Ven0304/vibe-design-arena/releases/tag/controller-python-v1.0.1-shim). See the [retirement handoff](references/controller-python-retirement.md).
+Use the selected approved Python 3.10+ interpreter. The Skill ships a standalone Python controller; no PowerShell runtime or launcher remains. Node.js is retained only for the independent browser-QA boundary.
 
 Before every mutating command, run `status` and pass its current `stateRevision` as `--expected-revision`. If preflight proposes a `.gitattributes` patch, show the exact patch to the user and obtain approval before rerunning with `--apply-attributes`.
 
@@ -88,6 +88,7 @@ references/                      Design standards and operating guides
 references/domain-packs/         Domain-specific calibration
 scripts/arena.py                 Canonical stateful Arena controller
 scripts/arena_integrity.py       Canonical snapshot and brief-integrity utility
+scripts/arena_controller/        Modular controller implementation
 scripts/arena-qa.mjs             Declarative Playwright and axe QA runner
 scripts/schemas/                 State, builder result, and QA contracts
 scripts/tests/                   Lifecycle and QA regression coverage
@@ -119,6 +120,11 @@ python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate
 | `0a553bf` | Added the scripted lifecycle state machine, integrity tools, schemas, and smoke coverage. |
 | `fbd17af` | Added declarative browser QA and the five-gate qualification flow. |
 | `d9125f6` | Refocused the main workflow and moved operational detail into dedicated references. |
+| `de582ab` | Added the Python controller foundation and frozen compatibility contracts. |
+| `5e60a34` | Reached command-level Python parity with the PowerShell oracle. |
+| `2bbd727` | Made Python the canonical controller across operating documentation. |
+| `dee56a0` | Completed the two-release compatibility window and retirement gates. |
+| `18113f2` | Retired the PowerShell runtime and made Python the sole controller implementation. |
 
 ## Contributing
 
