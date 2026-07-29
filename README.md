@@ -134,4 +134,4 @@ For changes to scripts or schemas, update the relevant regression coverage and r
 
 ## License
 
-No license is currently declared in this repository.
+This project is licensed under the [MIT License](LICENSE).

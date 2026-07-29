@@ -134,4 +134,4 @@ python -X utf8 "<CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate
 
 ## 许可证
 
-本仓库目前未声明许可证。
+本项目采用 [MIT License](LICENSE) 开源许可证。

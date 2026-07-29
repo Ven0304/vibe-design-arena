@@ -35,4 +35,4 @@ python scripts/arena_integrity.py <action> ...
 | Partial publish and branch retention | Full lifecycle publishes only `style-b`, removes all three worktrees, and verifies all three branches at recorded commits. |
 | Validator and documentation links | Skill validator, syntax/schema checks, dynamic-execution scan, and local-link audit. |
 
-At the Phase 4 audit on 2026-07-28, the GitHub repository had no open issues and no recorded unresolved P0/P1 parity defects. Named BUGFIX and PLATFORM decisions are documented in [`controller-compatibility-decisions.md`](../scripts/tests/conformance/controller-compatibility-decisions.md).
+At the Phase 4 audit on 2026-07-28, the GitHub repository had no open issues and no recorded unresolved P0/P1 parity defects. Named BUGFIX and PLATFORM decisions are documented in [`controller-compatibility-decisions.md`](../../../scripts/tests/conformance/controller-compatibility-decisions.md).

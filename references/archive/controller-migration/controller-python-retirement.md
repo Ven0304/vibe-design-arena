@@ -23,4 +23,4 @@ The Python parser continues to accept the former PowerShell-style long aliases, 
 
 Phase 5 removed the PowerShell controller, integrity implementation, shared module, forwarding shims, executable differential capture, and PowerShell-only smoke harnesses. The normalized schema `1.0` legacy-state fixture is retained as data-only compatibility evidence; Python resumes it without conversion.
 
-The permanent suite is `python scripts/tests/run_controller_tests.py`. The cross-platform `Controller Contract` workflow is the authoritative release matrix. Historical difference classifications and their regression tests remain documented in [`controller-compatibility-decisions.md`](../scripts/tests/conformance/controller-compatibility-decisions.md).
+The permanent suite is `python scripts/tests/run_controller_tests.py`. The cross-platform `Controller Contract` workflow is the authoritative release matrix. Historical difference classifications and their regression tests remain documented in [`controller-compatibility-decisions.md`](../../../scripts/tests/conformance/controller-compatibility-decisions.md).
